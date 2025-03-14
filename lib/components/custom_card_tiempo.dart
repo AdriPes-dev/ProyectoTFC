@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide BoxDecoration,BoxShadow;
+import 'package:flutter_inset_shadow/flutter_inset_shadow.dart';
 
 class Tiempo extends StatefulWidget {
   const Tiempo({super.key});
@@ -8,75 +9,134 @@ class Tiempo extends StatefulWidget {
 }
 
 class _TiempoState extends State<Tiempo> {
+  bool presionPlay = false;
+  bool presionStop = false;
+
   @override
   Widget build(BuildContext context) {
+    double blurStop = presionStop ? 7.5 : 2.5;
     return Container(
       height: 220,
       width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          color: const Color.fromARGB(255, 49, 122, 178),
-        ),
-        child: Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20))
-                ),
-                child: Image.asset("assets/logoFichar.png",
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+        color: const Color.fromARGB(255, 49, 122, 178),
+      ),
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+              ),
+              child: Image.asset(
+                "assets/logoFichar.png",
                 height: 150,
                 width: 150,
-                fit: BoxFit.cover,),
+                fit: BoxFit.cover,
               ),
             ),
-            Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(0,25,0,0),
-                  child: Text("08:00:00",
-                  style: TextStyle(
-                    fontSize: 45
-                  ),),
+          ),
+          Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(0, 25, 0, 0),
+                child: Text(
+                  "08:00:00",
+                  style: TextStyle(fontSize: 45),
                 ),
-                SizedBox(height:25),
-                Row(
-                  children: [
-                    Container(
+              ),
+              SizedBox(height: 25),
+              Row(
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if(presionStop == false){
+                          presionStop = !presionStop;
+                        }
+                        if(presionStop){
+                          presionPlay = false;
+                        }
+                      });
+                    },
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: 100),
                       decoration: BoxDecoration(
-                         color: const Color.fromARGB(255, 49, 122, 178),
-                         borderRadius: BorderRadius.circular(15),
-                         boxShadow: const [
+                        color: const Color(0xFF317AB2),
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            blurRadius: blurStop,
+                            offset: Offset(7.5, 7.5),
+                            color: Color(0xFF1E4D73),
+                            inset: presionStop,
+                          ),
+                          BoxShadow(
+                            blurRadius: blurStop,
+                            offset: Offset(-7.5, -7.5),
+                            color: Color(0xFF5FADE6),
+                            inset: presionStop,
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Icon(
+                          Icons.access_alarm_outlined,
+                          size: 40,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 25),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        if(presionPlay == false){
+                           presionPlay = !presionPlay;
+                        }
+                        if(presionPlay){
+                          presionStop = false;
+                        }
+                      });
+                    },
+                    child: AnimatedContainer(
+                      duration: Duration(milliseconds: 100),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF317AB2),
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
                           BoxShadow(
                             blurRadius: 7.5,
                             offset: Offset(7.5, 7.5),
-                            color: Color.fromARGB(255, 139, 145, 164)
+                            color: Color(0xFF1E4D73),
+                            inset: presionPlay,
                           ),
                           BoxShadow(
                             blurRadius: 7.5,
                             offset: Offset(-7.5, -7.5),
-                            color: Color.fromARGB(255, 49, 122, 178),
+                            color: Color(0xFF5FADE6),
+                            inset: presionPlay,
                           ),
-                         ]
+                        ],
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: Icon(Icons.access_alarm_outlined,
-                        size: 40,),
+                        child: Icon(
+                          Icons.play_arrow,
+                          size: 40,
+                        ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Icon(Icons.play_arrow,
-                      size: 40,),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        )
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
