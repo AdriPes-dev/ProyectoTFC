@@ -1,4 +1,4 @@
-import 'package:fichi/components/custom_card_tiempo.dart';
+import 'package:fichi/screens/pantallalogin.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -15,42 +15,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Fichi',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color.fromARGB(255, 83, 77, 178)),
+        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF317AB2)),
       ),
-      home: const MyHomePage(title: 'Fichi'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(20.0),
-           child: Tiempo(),
-          ),
-
-          ],
-        ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      home: PageLogin()//const MyHomePage(title: 'Fichi'),
     );
   }
 }
