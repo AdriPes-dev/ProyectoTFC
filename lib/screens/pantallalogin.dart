@@ -15,7 +15,7 @@ class PageLogin extends StatelessWidget {
           ContenidoPrincipal()
       ],
       ),
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
     );
   }
 }
@@ -25,12 +25,12 @@ class ContenidoPrincipal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const textStyle = TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white);
+    const textStyle = TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.black);
 
     return SafeArea(
       bottom: false,
       child: Center(
-        child: SingleChildScrollView( // 🔹 Permite desplazamiento si hay overflow
+        child: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -44,31 +44,43 @@ class ContenidoPrincipal extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(10),
-                child: TextFormField(
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.all(8.0),
-                    filled: true,
-                    labelText: "Introduce tu correo electrónico",
-                  ),
-                ),
+                padding: const EdgeInsets.all(30),
+                child: TextFormCorreo(),
               ),
               Padding(
-                padding: const EdgeInsets.all(10),
+                padding: const EdgeInsets.all(30),
                 child: const TextFormContrasenya(),
               ),
               CupertinoButton(
                 child: const Text("Iniciar Sesión"),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=>MyHomePage(title: "Fichi")));
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>MyHomePage(title: "F i c h i")));
                 },
               ),
-              const SizedBox(height: 20), // 🔹 Evita que el icono quede pegado al botón
-              const Icon(Icons.keyboard_arrow_right, size: 100, color: Colors.white),
+              const SizedBox(height: 20),
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class TextFormCorreo extends StatelessWidget {
+  const TextFormCorreo({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextFormField(
+      keyboardType: TextInputType.emailAddress,
+      decoration: const InputDecoration(
+        contentPadding: EdgeInsets.all(8.0),
+        filled: true,
+        labelText: "Introduce tu correo electrónico",
+        border: OutlineInputBorder(),
+        fillColor: Colors.white,
       ),
     );
   }
@@ -90,6 +102,8 @@ class _EstadosContrasenya extends State<TextFormContrasenya> {
       keyboardType: TextInputType.visiblePassword,
       obscureText: !_estadoContrasenya,
       decoration: InputDecoration(
+        fillColor: Colors.white,
+        border: OutlineInputBorder(),
         contentPadding: const EdgeInsets.all(8.0),
         filled: true,
         labelText: "Introduce tu contraseña",
