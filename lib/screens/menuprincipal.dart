@@ -1,8 +1,10 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:fichi/main.dart';
 import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/screens/paginaprincipal.dart';
 import 'package:fichi/screens/pantallaempresa.dart';
 import 'package:fichi/screens/pantallaperfil.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -43,15 +45,23 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         elevation: 0,
         centerTitle: true,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(Icons.logout_rounded),
-        ),
+       leading: IconButton(
+  onPressed: () async {
+    await FirebaseAuth.instance.signOut(); // Cerrar sesión
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MyApp(), // ← Reemplaza con el nombre real de tu pantalla de login
+      ),
+      (route) => false, // Elimina todo lo anterior en el stack de navegación
+    );
+  },
+  icon: const Icon(Icons.logout_rounded),
+),
       ),
       bottomNavigationBar: CurvedNavigationBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
         color: Colors.blue,
         animationDuration: Duration(milliseconds: 100),
         items: [Icon(Icons.home), Icon(Icons.person), Icon(Icons.business)],

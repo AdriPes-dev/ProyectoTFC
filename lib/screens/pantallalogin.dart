@@ -1,8 +1,8 @@
 import 'package:fichi/components/bordesdegradados.dart';
 import 'package:fichi/components/textfieldcontrasenya.dart';
 import 'package:fichi/components/textfieldcorreo.dart';
-import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/screens/menuprincipal.dart';
+import 'package:fichi/services/auth_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -18,8 +18,51 @@ class PageLogin extends StatelessWidget {
   }
 }
 
-class ContenidoPrincipal extends StatelessWidget {
+class ContenidoPrincipal extends StatefulWidget {
   const ContenidoPrincipal({super.key});
+
+  @override
+  State<ContenidoPrincipal> createState() => _ContenidoPrincipalState();
+}
+class _ContenidoPrincipalState extends State<ContenidoPrincipal> {
+
+  final AuthService _authService = AuthService();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _isLoading = false;
+
+  Future<void> _handleLogin() async {
+    setState(() => _isLoading = true);
+
+    try {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+
+      if (email.isEmpty || password.isEmpty) {
+        throw "Por favor ingrese correo y contraseña";
+      }
+
+      final persona = await _authService.signInWithEmailAndPassword(email, password);
+
+      if (persona != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MyHomePage(
+              title: "F i c h i", 
+              persona: persona,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,58 +107,42 @@ class ContenidoPrincipal extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.all(30),
-                child: TextFormCorreo(),
+                child: TextFormCorreo(controller: _emailController,),
               ),
               Padding(
                 padding: const EdgeInsets.all(30),
-                child: const TextFormContrasenya(),
+                child: TextFormContrasenya(controller: _passwordController,),
               ),
               CupertinoButton(
-                padding:
-                    EdgeInsets
-                        .zero, // Elimina el padding por defecto para controlar mejor el diseño
+                padding: EdgeInsets.zero,
+                onPressed: _isLoading ? null : _handleLogin,
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Colors.white, // Fondo blanco
-                    borderRadius: BorderRadius.circular(
-                      8,
-                    ), // Bordes redondeados
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
                     border: GradientBoxBorder(
-                      // Borde con degradado (necesita GradientBoxBorder)
-                      gradient: LinearGradient(
-                        colors: [Colors.blue, Colors.purple],
-                      ),
-                      width: 2, // Grosor del borde
+                      gradient: LinearGradient(colors: [Colors.blue, Colors.purple]),
+                      width: 2,
                     ),
                   ),
-                  child: ShaderMask(
-                    shaderCallback:
-                        (bounds) => LinearGradient(
-                          colors: [Colors.blue, Colors.purple],
-                        ).createShader(bounds),
-                    blendMode:
-                        BlendMode.srcIn, // Aplica el gradiente solo al texto
-                    child: Text(
-                      "Iniciar Sesión",
-                      style: TextStyle(
-                        color:
-                            Colors
-                                .white, // Importante: el color debe ser opaco para que funcione el gradiente
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
+                  child: _isLoading
+                      ? CircularProgressIndicator()
+                      : ShaderMask(
+                          shaderCallback: (bounds) => LinearGradient(
+                            colors: [Colors.blue, Colors.purple],
+                          ).createShader(bounds),
+                          blendMode: BlendMode.srcIn,
+                          child: Text(
+                            "Iniciar Sesión",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                 ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MyHomePage(title: "F i c h i", persona: Persona(nombre: "Adrian", apellidos: "Pesquera", correo: "pesquera@gmail.com", contrasenya: "adsljfkadks", dni: "71312509G", telefono: "1234124", esJefe: false),),
-                    ),
-                  );
-                },
               ),
               const SizedBox(height: 20),
             ],

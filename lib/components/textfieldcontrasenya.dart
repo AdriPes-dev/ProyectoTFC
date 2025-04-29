@@ -2,7 +2,9 @@ import 'package:fichi/components/bordesdegradados.dart';
 import 'package:flutter/material.dart';
 
 class TextFormContrasenya extends StatefulWidget {
-  const TextFormContrasenya({super.key});
+  final TextEditingController controller;
+
+  const TextFormContrasenya({super.key,required this.controller});
 
   @override
   State<TextFormContrasenya> createState() => _EstadosContrasenya();
@@ -40,6 +42,7 @@ class _EstadosContrasenya extends State<TextFormContrasenya> {
             : Border.all(color: Colors.grey, width: 1.5), // Gris por defecto
       ),
       child: TextFormField(
+        controller: widget.controller,
         focusNode: _focusNode, // Asigna el FocusNode
         keyboardType: TextInputType.visiblePassword,
         obscureText: !_estadoContrasenya,

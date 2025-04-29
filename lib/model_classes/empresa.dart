@@ -8,6 +8,7 @@ class Empresa {
   String email;
   String sector;
   Persona jefe;
+  List<Persona> empleados;
 
   Empresa({
     required this.cif,
@@ -17,9 +18,10 @@ class Empresa {
     required this.email,
     required this.sector,
     required this.jefe,
+    this.empleados = const [],
   });
 
-  // Constructor desde un mapa (por ejemplo, desde Firebase o SQLite)
+  // Constructor desde mapa
   Empresa.map(Map<String, dynamic> obj)
       : cif = obj['cif'] ?? '',
         nombre = obj['nombre'] ?? '',
@@ -27,9 +29,13 @@ class Empresa {
         telefono = obj['telefono'] ?? '',
         email = obj['email'] ?? '',
         sector = obj['sector'] ?? '',
-        jefe = Persona.map(obj['jefe'] ?? {});
+        jefe = Persona.map(obj['jefe'] ?? {}),
+        empleados = (obj['empleados'] as List<dynamic>?)
+                ?.map((e) => Persona.map(e))
+                .toList() ??
+            []; // Lista vacía por defecto
 
-  // Conversión a mapa para guardar en base de datos
+  // Conversión a mapa
   Map<String, dynamic> toMap() {
     return {
       'cif': cif,
@@ -39,6 +45,7 @@ class Empresa {
       'email': email,
       'sector': sector,
       'jefe': jefe.toMap(),
+      'empleados': empleados.map((e) => e.toMap()).toList(),
     };
   }
 }

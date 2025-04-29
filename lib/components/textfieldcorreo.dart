@@ -2,7 +2,8 @@ import 'package:fichi/components/bordesdegradados.dart';
 import 'package:flutter/material.dart';
 
 class TextFormCorreo extends StatefulWidget {
-  const TextFormCorreo({super.key});
+  final TextEditingController controller;
+  const TextFormCorreo({super.key, required this.controller});
 
   @override
   State<TextFormCorreo> createState() => _TextFormCorreoState();
@@ -41,6 +42,7 @@ class _TextFormCorreoState extends State<TextFormCorreo> {
               : Border.all(color: Colors.grey, width: 1.5), // Gris por defecto
         ),
         child: TextField(
+          controller: widget.controller,
           focusNode: _focusNode, // Asigna el FocusNode
           decoration: InputDecoration(
             labelText: "Introduce tu correo electrónico",

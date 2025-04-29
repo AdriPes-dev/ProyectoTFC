@@ -1,10 +1,9 @@
 import 'package:fichi/components/bordesdegradados.dart';
-import 'package:fichi/components/textfieldcontrasenya.dart';
-import 'package:fichi/components/textfieldcorreo.dart';
 import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/screens/menuprincipal.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fichi/services/auth_service.dart';
 
 class PantallaRegistro extends StatefulWidget {
   const PantallaRegistro({super.key});
@@ -20,7 +19,8 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
   final TextEditingController _contrasenyaController = TextEditingController();
   final TextEditingController _dniController = TextEditingController();
   final TextEditingController _telefonoController = TextEditingController();
-  bool _esJefe = false;
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -31,6 +31,62 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
     _dniController.dispose();
     _telefonoController.dispose();
     super.dispose();
+  }
+
+  // Método para manejar el registro
+  Future<void> _handleRegister() async {
+    setState(() => _isLoading = true);
+
+    if (_nombreController.text.isEmpty ||
+    _apellidosController.text.isEmpty ||
+    _correoController.text.isEmpty ||
+    !_correoController.text.contains('@') ||
+    _dniController.text.isEmpty) {
+    throw "Por favor complete todos los campos correctamente";
+    }
+
+    try {
+      final nuevaPersona = Persona(
+        nombre: _nombreController.text.trim(),
+        apellidos: _apellidosController.text.trim(),
+        correo: _correoController.text.trim(),
+        contrasenya: _contrasenyaController.text.trim(),
+        dni: _dniController.text.trim(),
+        telefono: _telefonoController.text.trim(),
+      );
+
+      // Validación básica
+      if (_contrasenyaController.text.length < 6) {
+        throw "La contraseña debe tener al menos 6 caracteres";
+      }
+
+      // Registrar en Firebase
+      final user = await _authService.registerWithEmailAndPassword(
+        nuevaPersona.correo,
+        nuevaPersona.contrasenya,
+        nuevaPersona,
+      );
+
+      if (user != null) {
+        // Navegar a pantalla principal después de registro exitoso
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MyHomePage(
+              title: "F i c h i", 
+              persona: nuevaPersona,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      // Mostrar error al usuario
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString())),
+      );
+    } finally {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -67,70 +123,39 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
               const SizedBox(height: 20),
               _buildCampo("Teléfono", _telefonoController, Icons.phone),
               const SizedBox(height: 20),
-
-              Row(
-                children: [
-                  Checkbox(
-                    value: _esJefe,
-                    onChanged: (value) {
-                      setState(() {
-                        _esJefe = value ?? false;
-                      });
-                    },
-                  ),
-                  const Text("¿Eres jefe de empresa?", style: TextStyle(fontSize: 16)),
-                ],
-              ),
               const SizedBox(height: 30),
 
               CupertinoButton(
-                padding: EdgeInsets.zero,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  decoration: BoxDecoration(
+      padding: EdgeInsets.zero,
+      onPressed: _isLoading ? null : _handleRegister,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: GradientBoxBorder(
+            gradient: const LinearGradient(colors: [Colors.blue, Colors.purple]),
+            width: 2,
+          ),
+        ),
+        child: _isLoading
+            ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.blue))
+            : ShaderMask(
+                shaderCallback: (bounds) => const LinearGradient(
+                  colors: [Colors.blue, Colors.purple],
+                ).createShader(bounds),
+                blendMode: BlendMode.srcIn,
+                child: const Text(
+                  "Registrarse",
+                  style: TextStyle(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                    border: GradientBoxBorder(
-                      gradient: const LinearGradient(colors: [Colors.blue, Colors.purple]),
-                      width: 2,
-                    ),
-                  ),
-                  child: ShaderMask(
-                    shaderCallback: (bounds) => const LinearGradient(
-                      colors: [Colors.blue, Colors.purple],
-                    ).createShader(bounds),
-                    blendMode: BlendMode.srcIn,
-                    child: const Text(
-                      "Registrarse",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                onPressed: () {
-                  final nuevaPersona = Persona(
-                    nombre: _nombreController.text.trim(),
-                    apellidos: _apellidosController.text.trim(),
-                    correo: _correoController.text.trim(),
-                    contrasenya: _contrasenyaController.text.trim(),
-                    dni: _dniController.text.trim(),
-                    telefono: _telefonoController.text.trim(),
-                    esJefe: _esJefe,
-                  );
-
-                  // Aquí podrías guardar en SQLite o Firebase
-
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MyHomePage(title: "F i c h i", persona: nuevaPersona),
-                    ),
-                  );
-                },
               ),
+      ), // Usar el nuevo método
+    ),
 
               const SizedBox(height: 20),
             ],
