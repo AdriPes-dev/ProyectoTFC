@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:fichi/model_classes/persona.dart';
 
 class PantallaPerfil extends StatefulWidget {
-  const PantallaPerfil({super.key});
+  final Persona persona;
+
+  const PantallaPerfil({super.key, required this.persona});
 
   @override
   State<PantallaPerfil> createState() => _PantallaPerfilState();
@@ -10,12 +13,76 @@ class PantallaPerfil extends StatefulWidget {
 class _PantallaPerfilState extends State<PantallaPerfil> {
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return SingleChildScrollView(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Padding(padding: const EdgeInsets.all(25.0), child: Text("Perfil")),
+          // Encabezado con la foto y nombre
+          Container(
+            width: double.infinity,
+            height: 200,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(0),
+                topRight: Radius.circular(0),
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
+              ),
+              color: Colors.blue,
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 60,
+                    child: Text(
+                      widget.persona.nombre[0], // Mostrar la inicial del nombre
+                      style: const TextStyle(fontSize: 45),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    widget.persona.nombre + " " + widget.persona.apellidos,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 25,
+                      color: Colors.black,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // Información de la persona
+          Padding(
+            padding: const EdgeInsets.all(25.0),
+            child: Text(
+              "Perfil de ${widget.persona.nombre}",
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+          ),
+          _buildTextField("Correo", widget.persona.correo),
+          _buildTextField("Nombre", widget.persona.nombre),
+          _buildTextField("Apellidos", widget.persona.apellidos),
+          _buildTextField("DNI", widget.persona.dni),
+          _buildTextField("Teléfono", widget.persona.telefono),
         ],
+      ),
+    );
+  }
+
+  // Método para crear campos de texto
+  Widget _buildTextField(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: TextField(
+        enabled: false, // Hace que el campo sea solo lectura
+        controller: TextEditingController(text: value), // Muestra el valor de la persona
+        decoration: InputDecoration(
+          labelText: label,
+        ),
       ),
     );
   }

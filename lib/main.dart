@@ -32,7 +32,6 @@ class _MyAppState extends State<MyApp> {
         children:[ LiquidSwipe(
           onPageChangeCallback: (activePageIndex) {
             setState(() {
-              
             });
           },
           liquidController: controller,
@@ -51,8 +50,8 @@ class _MyAppState extends State<MyApp> {
               count: 2,
               effect: WormEffect(
                 spacing: 12,
-                dotColor: const Color.fromARGB(255, 159, 166, 172),
-                activeDotColor: const Color.fromARGB(255, 49, 122, 178),
+                dotColor: Colors.purple,
+                activeDotColor: Colors.blue,
               ),
               ),
           ),

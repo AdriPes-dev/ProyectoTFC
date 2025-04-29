@@ -1,24 +1,48 @@
-import 'package:fichi/model_classes/empresa.dart';
+import 'empresa.dart';
 
-class Persona{
-  Persona(this._nif, this._nombre, this._empresa, this._inicioFicha);
-  
-  final String _nif;
-  final String _nombre;
-  final Empresa _empresa;
-  final DateTime _inicioFicha;
+class Persona {
+  String nombre;
+  String apellidos;
+  String correo;
+  String contrasenya;
+  String dni;
+  String telefono;
+  bool esJefe;
+  Empresa? empresa; // <- ahora es opcional
 
-   // Constructor desde un mapa (JSON)
+  Persona({
+    required this.nombre,
+    required this.apellidos,
+    required this.correo,
+    required this.contrasenya,
+    required this.dni,
+    required this.telefono,
+    this.esJefe = false,
+    this.empresa,
+  });
+
+  // Constructor desde mapa (JSON o SQLite)
   Persona.map(Map<String, dynamic> obj)
-      : _nif = obj['nif'] ?? '',
-        _nombre = obj['nombre'] ?? '',
-        _empresa = Empresa.map(obj['empresa'] ?? {}), // Convertir JSON a Empresa
-        _inicioFicha = obj['inicioFicha'] != null
-            ? DateTime.parse(obj['inicioFicha']) // Convertir String a DateTime
-            : DateTime.now(); // Fecha por defecto
+      : nombre = obj['nombre'] ?? '',
+        apellidos = obj['apellidos'] ?? '',
+        correo = obj['correo'] ?? '',
+        contrasenya = obj['contrasenya'] ?? '',
+        dni = obj['dni'] ?? '',
+        telefono = obj['telefono'] ?? '',
+        esJefe = obj['esJefe'] ?? false,
+        empresa = obj['empresa'] != null ? Empresa.map(obj['empresa']) : null;
 
-  String get nif => _nif;
-  String get nombre => _nombre;
-  Empresa get empresa => _empresa;
-  DateTime get inicioFicha => _inicioFicha;
+  // Conversión a mapa
+  Map<String, dynamic> toMap() {
+    return {
+      'nombre': nombre,
+      'apellidos': apellidos,
+      'correo': correo,
+      'contrasenya': contrasenya,
+      'dni': dni,
+      'telefono': telefono,
+      'esJefe': esJefe,
+      'empresa': empresa?.toMap(), // si no tiene empresa, será null
+    };
+  }
 }
