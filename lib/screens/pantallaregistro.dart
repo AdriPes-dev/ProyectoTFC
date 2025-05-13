@@ -37,33 +37,40 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
   Future<void> _handleRegister() async {
     setState(() => _isLoading = true);
 
+    // Validación de campos
     if (_nombreController.text.isEmpty ||
-    _apellidosController.text.isEmpty ||
-    _correoController.text.isEmpty ||
-    !_correoController.text.contains('@') ||
-    _dniController.text.isEmpty) {
-    throw "Por favor complete todos los campos correctamente";
+        _apellidosController.text.isEmpty ||
+        _correoController.text.isEmpty ||
+        !_correoController.text.contains('@') ||
+        _dniController.text.isEmpty ||
+        _contrasenyaController.text.isEmpty) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Por favor complete todos los campos correctamente")),
+      );
+      return;
     }
 
     try {
-      final nuevaPersona = Persona(
-        nombre: _nombreController.text.trim(),
-        apellidos: _apellidosController.text.trim(),
-        correo: _correoController.text.trim(),
-        contrasenya: _contrasenyaController.text.trim(),
-        dni: _dniController.text.trim(),
-        telefono: _telefonoController.text.trim(),
-      );
-
-      // Validación básica
+      // Validación de contraseña
       if (_contrasenyaController.text.length < 6) {
         throw "La contraseña debe tener al menos 6 caracteres";
       }
 
+      // Crear nueva persona
+      final nuevaPersona = Persona(
+        dni: _dniController.text.trim(),
+        nombre: _nombreController.text.trim(),
+        apellidos: _apellidosController.text.trim(),
+        correo: _correoController.text.trim(),
+        telefono: _telefonoController.text.trim(),
+        esJefe: false, // Por defecto no es jefe
+      );
+
       // Registrar en Firebase
       final user = await _authService.registerWithEmailAndPassword(
         nuevaPersona.correo,
-        nuevaPersona.contrasenya,
+        _contrasenyaController.text.trim(),
         nuevaPersona,
       );
 
@@ -126,36 +133,36 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
               const SizedBox(height: 30),
 
               CupertinoButton(
-      padding: EdgeInsets.zero,
-      onPressed: _isLoading ? null : _handleRegister,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8),
-          border: GradientBoxBorder(
-            gradient: const LinearGradient(colors: [Colors.blue, Colors.purple]),
-            width: 2,
-          ),
-        ),
-        child: _isLoading
-            ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.blue))
-            : ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
-                  colors: [Colors.blue, Colors.purple],
-                ).createShader(bounds),
-                blendMode: BlendMode.srcIn,
-                child: const Text(
-                  "Registrarse",
-                  style: TextStyle(
+                padding: EdgeInsets.zero,
+                onPressed: _isLoading ? null : _handleRegister,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
                     color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+                    borderRadius: BorderRadius.circular(8),
+                    border: GradientBoxBorder(
+                      gradient: const LinearGradient(colors: [Colors.blue, Colors.purple]),
+                      width: 2,
+                    ),
                   ),
+                  child: _isLoading
+                      ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.blue))
+                      : ShaderMask(
+                          shaderCallback: (bounds) => const LinearGradient(
+                            colors: [Colors.blue, Colors.purple],
+                          ).createShader(bounds),
+                          blendMode: BlendMode.srcIn,
+                          child: const Text(
+                            "Registrarse",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                 ),
               ),
-      ), // Usar el nuevo método
-    ),
 
               const SizedBox(height: 20),
             ],

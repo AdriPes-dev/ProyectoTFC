@@ -106,13 +106,13 @@ class _CrearEmpresaScreenState extends State<CrearEmpresaScreen> {
 
                     // Crear empresa
                     final nuevaEmpresa = Empresa(
-                      cif: 'CIF${DateTime.now().millisecondsSinceEpoch}',
+                      cif: _cifController.text.trim(),
                       nombre: nombreEmpresa,
                       direccion: _direccionController.text.trim(),
                       telefono: _telefonoController.text.trim(),
                       email: _emailController.text.trim(),
                       sector: _sectorController.text.trim(),
-                      jefe: widget.persona,
+                      jefeDni: widget.persona.dni
                     );
 
                     try {
@@ -124,6 +124,7 @@ class _CrearEmpresaScreenState extends State<CrearEmpresaScreen> {
                         nombreEmpresa: nuevaEmpresa.nombre,
                         sector: nuevaEmpresa.sector,
                         personaActual: widget.persona,
+                        jefeDni: widget.persona.dni
                       );
 
                       // Disposear pantalla y devolver empresa

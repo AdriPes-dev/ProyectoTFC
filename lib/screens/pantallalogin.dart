@@ -24,8 +24,8 @@ class ContenidoPrincipal extends StatefulWidget {
   @override
   State<ContenidoPrincipal> createState() => _ContenidoPrincipalState();
 }
-class _ContenidoPrincipalState extends State<ContenidoPrincipal> {
 
+class _ContenidoPrincipalState extends State<ContenidoPrincipal> {
   final AuthService _authService = AuthService();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -43,21 +43,19 @@ class _ContenidoPrincipalState extends State<ContenidoPrincipal> {
       }
 
       final persona = await _authService.signInWithEmailAndPassword(email, password);
-
       if (persona != null) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => MyHomePage(
-              title: "F i c h i", 
-              persona: persona,
-            ),
+            builder: (context) => MyHomePage(persona: persona, title: 'F I C H I',),
           ),
         );
+      } else {
+        throw "No se pudo iniciar sesión. Verifique sus credenciales.";
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
+        SnackBar(content: Text("Error: $e")),
       );
     } finally {
       setState(() => _isLoading = false);
@@ -90,28 +88,25 @@ class _ContenidoPrincipalState extends State<ContenidoPrincipal> {
               Padding(
                 padding: const EdgeInsets.all(10),
                 child: ShaderMask(
-                  shaderCallback:
-                      (bounds) => LinearGradient(
-                        colors: [Colors.blue, Colors.purple],
-                      ).createShader(
-                        Rect.fromLTWH(0, 0, bounds.width, bounds.height),
-                      ),
+                  shaderCallback: (bounds) => LinearGradient(
+                    colors: [Colors.blue, Colors.purple],
+                  ).createShader(
+                    Rect.fromLTWH(0, 0, bounds.width, bounds.height),
+                  ),
                   child: Text(
                     "Inicia Sesión",
                     style: textStyle,
-                    textAlign:
-                        TextAlign
-                            .center, // 🔹 Asegura que el texto esté centrado
+                    textAlign: TextAlign.center,
                   ),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(30),
-                child: TextFormCorreo(controller: _emailController,),
+                child: TextFormCorreo(controller: _emailController),
               ),
               Padding(
                 padding: const EdgeInsets.all(30),
-                child: TextFormContrasenya(controller: _passwordController,),
+                child: TextFormContrasenya(controller: _passwordController),
               ),
               CupertinoButton(
                 padding: EdgeInsets.zero,
@@ -119,7 +114,7 @@ class _ContenidoPrincipalState extends State<ContenidoPrincipal> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: _isLoading ? Colors.grey : Colors.white,
                     borderRadius: BorderRadius.circular(8),
                     border: GradientBoxBorder(
                       gradient: LinearGradient(colors: [Colors.blue, Colors.purple]),
@@ -127,7 +122,7 @@ class _ContenidoPrincipalState extends State<ContenidoPrincipal> {
                     ),
                   ),
                   child: _isLoading
-                      ? CircularProgressIndicator()
+                      ? CircularProgressIndicator(color: Colors.blue)
                       : ShaderMask(
                           shaderCallback: (bounds) => LinearGradient(
                             colors: [Colors.blue, Colors.purple],
@@ -144,7 +139,6 @@ class _ContenidoPrincipalState extends State<ContenidoPrincipal> {
                         ),
                 ),
               ),
-              const SizedBox(height: 20),
             ],
           ),
         ),

@@ -1,14 +1,14 @@
-import 'package:fichi/model_classes/persona.dart';
-
 class Empresa {
-  String cif;
-  String nombre;
-  String direccion;
-  String telefono;
-  String email;
-  String sector;
-  Persona jefe;
-  List<Persona> empleados;
+  final String cif;
+  final String nombre;
+  final String direccion;
+  final String telefono;
+  final String email;
+  final String sector;
+  final String? jefeDni;
+  
+  // No almacenamos empleados aquí para evitar duplicidad de datos
+  // Los empleados se obtendrán por consulta separada
 
   Empresa({
     required this.cif,
@@ -17,25 +17,21 @@ class Empresa {
     required this.telefono,
     required this.email,
     required this.sector,
-    required this.jefe,
-    this.empleados = const [],
+    this.jefeDni,
   });
 
-  // Constructor desde mapa
-  Empresa.map(Map<String, dynamic> obj)
-      : cif = obj['cif'] ?? '',
-        nombre = obj['nombre'] ?? '',
-        direccion = obj['direccion'] ?? '',
-        telefono = obj['telefono'] ?? '',
-        email = obj['email'] ?? '',
-        sector = obj['sector'] ?? '',
-        jefe = Persona.map(obj['jefe'] ?? {}),
-        empleados = (obj['empleados'] as List<dynamic>?)
-                ?.map((e) => Persona.map(e))
-                .toList() ??
-            []; // Lista vacía por defecto
+  factory Empresa.fromMap(Map<String, dynamic> map) {
+    return Empresa(
+      cif: map['cif'] ?? '',
+      nombre: map['nombre'] ?? '',
+      direccion: map['direccion'] ?? '',
+      telefono: map['telefono'] ?? '',
+      email: map['email'] ?? '',
+      sector: map['sector'] ?? '',
+      jefeDni: map['jefeDni'],
+    );
+  }
 
-  // Conversión a mapa
   Map<String, dynamic> toMap() {
     return {
       'cif': cif,
@@ -44,8 +40,7 @@ class Empresa {
       'telefono': telefono,
       'email': email,
       'sector': sector,
-      'jefe': jefe.toMap(),
-      'empleados': empleados.map((e) => e.toMap()).toList(),
+      'jefeDni': jefeDni,
     };
   }
 }

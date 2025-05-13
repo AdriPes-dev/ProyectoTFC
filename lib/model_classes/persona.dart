@@ -1,48 +1,45 @@
-import 'empresa.dart';
-
 class Persona {
-  String nombre;
-  String apellidos;
-  String correo;
-  String contrasenya;
-  String dni;
-  String telefono;
-  bool esJefe;
-  Empresa? empresa; // <- ahora es opcional
+  final String dni;
+  final String nombre;
+  final String apellidos;
+  final String correo;
+  final String telefono;
+  final bool esJefe;
+  String? empresaCif;
 
   Persona({
+    required this.dni,
     required this.nombre,
     required this.apellidos,
     required this.correo,
-    required this.contrasenya,
-    required this.dni,
     required this.telefono,
     this.esJefe = false,
-    this.empresa,
+    this.empresaCif,
   });
 
-  // Constructor desde mapa (JSON o SQLite)
-  Persona.map(Map<String, dynamic> obj)
-      : nombre = obj['nombre'] ?? '',
-        apellidos = obj['apellidos'] ?? '',
-        correo = obj['correo'] ?? '',
-        contrasenya = obj['contrasenya'] ?? '',
-        dni = obj['dni'] ?? '',
-        telefono = obj['telefono'] ?? '',
-        esJefe = obj['esJefe'] ?? false,
-        empresa = obj['empresa'] != null ? Empresa.map(obj['empresa']) : null;
+  factory Persona.fromMap(Map<String, dynamic> map) {
+    return Persona(
+      dni: map['dni'] ?? '',
+      nombre: map['nombre'] ?? '',
+      apellidos: map['apellidos'] ?? '',
+      correo: map['correo'] ?? '',
+      telefono: map['telefono'] ?? '',
+      esJefe: map['esJefe'] ?? false,
+      empresaCif: map['empresaCif'],
+    );
+  }
 
-  // Conversión a mapa
   Map<String, dynamic> toMap() {
     return {
+      'dni': dni,
       'nombre': nombre,
       'apellidos': apellidos,
       'correo': correo,
-      'contrasenya': contrasenya,
-      'dni': dni,
       'telefono': telefono,
       'esJefe': esJefe,
-      'empresa': empresa?.toMap(), // si no tiene empresa, será null
+      'empresaCif': empresaCif,
     };
   }
+
+  String get nombreCompleto => '$nombre $apellidos';
 }

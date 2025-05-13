@@ -1,13 +1,16 @@
-import 'package:fichi/model_classes/empresa.dart';
-import 'package:fichi/model_classes/persona.dart';
+import 'dart:ffi';
+
+import 'empresa.dart';
+import 'persona.dart';
 
 class Incidencia {
-  final String id;
-  final Persona empleado;
-  final Empresa empresa;
-  final String descripcion;
-  final String estado; // "Pendiente", "En proceso", "Resuelta"
-  final DateTime fechaReporte;
+  String id;
+  Persona empleado;
+  Empresa empresa;
+  String descripcion;
+  String estado; // "Pendiente", "En proceso", "Resuelta"
+  DateTime fechaReporte;
+  bool? aceptada;
 
   Incidencia({
     required this.id,
@@ -18,7 +21,7 @@ class Incidencia {
     required this.fechaReporte,
   });
 
-  // Constructor desde un mapa (JSON)
+  // Constructor desde un mapa (JSON o Firestore)
   Incidencia.map(Map<String, dynamic> obj, Persona empleado, Empresa empresa)
       : id = obj['id'] ?? '',
         empleado = empleado,
@@ -28,4 +31,16 @@ class Incidencia {
         fechaReporte = obj['fechaReporte'] != null
             ? DateTime.parse(obj['fechaReporte'])
             : DateTime.now();
+
+  // Conversión a mapa
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'empleado': empleado.toMap(),
+      'empresa': empresa.toMap(),
+      'descripcion': descripcion,
+      'estado': estado,
+      'fechaReporte': fechaReporte.toIso8601String(),
+    };
+  }
 }

@@ -14,12 +14,14 @@ class UnirseAEmpresaScreen extends StatefulWidget {
 
 class _UnirseAEmpresaScreenState extends State<UnirseAEmpresaScreen> {
   final TextEditingController _searchController = TextEditingController();
-  late Future<List<Empresa>> _empresasFuture;
+  List<Empresa> _todasLasEmpresas = [];
+  List<Empresa> _empresasFiltradas = [];
+
 
   @override
   void initState() {
     super.initState();
-    _empresasFuture = _cargarEmpresas();
+    _cargarEmpresas();
     _searchController.addListener(_onSearchChanged);
   }
 
@@ -31,94 +33,81 @@ class _UnirseAEmpresaScreenState extends State<UnirseAEmpresaScreen> {
   }
 
   void _onSearchChanged() {
-    setState(() {
-      _empresasFuture = _cargarEmpresas(searchTerm: _searchController.text);
-    });
-  }
+  final search = _searchController.text.toLowerCase();
 
-  Future<List<Empresa>> _cargarEmpresas({String searchTerm = ''}) async {
+  setState(() {
+    _empresasFiltradas = _todasLasEmpresas.where((empresa) {
+      return empresa.nombre.toLowerCase().contains(search) ||
+             empresa.cif.toLowerCase().contains(search);
+    }).toList();
+  });
+}
+
+  Future<void> _cargarEmpresas() async {
   try {
-    Query query = FirebaseFirestore.instance.collection('empresas');
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('empresas')
+        .limit(50) // Puedes ajustar este número
+        .get();
 
-    if (searchTerm.isNotEmpty) {
-      query = query
-          .where('searchKeywords', arrayContains: searchTerm.toLowerCase())
-          .limit(20);
-    } else {
-      query = query.limit(20);
-    }
+    final empresas = querySnapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>? ?? {};
 
-    final querySnapshot = await query.get();
-
-    return querySnapshot.docs.map((doc) {
-      final data = doc.data() as Map<String, dynamic>? ?? {}; // Conversión segura
-      
       return Empresa(
-        cif: data['cif'] as String? ?? '', // Valor por defecto si es null
+        cif: data['cif'] as String? ?? '',
         nombre: data['nombre'] as String? ?? 'Empresa sin nombre',
         direccion: data['direccion'] as String? ?? '',
         telefono: data['telefono'] as String? ?? '',
         email: data['email'] as String? ?? '',
         sector: data['sector'] as String? ?? '',
-        jefe: data['jefe'] != null 
-            ? Persona.map(data['jefe'] as Map<String, dynamic>)
-            : Persona( // Persona por defecto si no hay jefe
-                nombre: 'Desconocido',
-                apellidos: '',
-                correo: '',
-                contrasenya: '',
-                dni: '',
-                telefono: '',
-                esJefe: false,
-              ),
+        jefeDni: data['jefeDni'],
       );
     }).toList();
+
+    setState(() {
+      _todasLasEmpresas = empresas;
+      _empresasFiltradas = empresas;
+    });
   } catch (e) {
     print("Error cargando empresas: $e");
-    return [];
   }
 }
 
   Future<void> _unirseAEmpresa(Empresa empresa) async {
-    if (widget.persona.empresa != null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Ya perteneces a una empresa.")),
-        );
-      }
-      return;
+  // Si la persona ya tiene un empresaCif asignado, no se puede unir
+  if (widget.persona.empresaCif != null && widget.persona.empresaCif!.isNotEmpty) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Ya perteneces a una empresa.")),
+      );
     }
+    return;
+  }
 
-    try {
-      await FirebaseFirestore.instance
-          .collection('personas')
-          .doc(widget.persona.dni)
-          .update({
-        'empresa': {
-          'cif': empresa.cif,
-          'nombre': empresa.nombre,
-          'direccion': empresa.direccion,
-          'telefono': empresa.telefono,
-          'email': empresa.email,
-          'sector': empresa.sector,
-        },
-        'empresaCif': empresa.cif, // Clave para búsquedas posteriores
-      });
+  try {
+    await FirebaseFirestore.instance
+        .collection('personas')
+        .doc(widget.persona.dni)
+        .update({
+      'empresaCif': empresa.cif,
+    });
 
-      // Actualizar el objeto local
-      widget.persona.empresa = empresa;
+    // Actualiza el objeto local
+    setState(() {
+      widget.persona.empresaCif = empresa.cif;
+    });
 
-      if (mounted) {
-        Navigator.pop(context, true);
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Error al unirse a la empresa: ${e.toString()}")),
-        );
-      }
+    if (mounted) {
+      Navigator.pop(context, true); // Devuelve 'true' si todo fue bien
+    }
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error al unirse a la empresa: ${e.toString()}")),
+      );
     }
   }
+}
 
   void _showConfirmDialog(Empresa empresa) {
     showDialog(
@@ -164,57 +153,40 @@ class _UnirseAEmpresaScreenState extends State<UnirseAEmpresaScreen> {
             ),
           ),
           Expanded(
-            child: FutureBuilder<List<Empresa>>(
-              future: _empresasFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (snapshot.hasError) {
-                  return Center(child: Text("Error: ${snapshot.error}"));
-                }
-
-                final empresas = snapshot.data ?? [];
-
-                if (empresas.isEmpty) {
-                  return Center(
-                    child: Text(
-                      _searchController.text.isEmpty
-                          ? "No hay empresas registradas"
-                          : "No se encontraron resultados",
-                    ),
-                  );
-                }
-
-                return ListView.builder(
-                  itemCount: empresas.length,
-                  itemBuilder: (context, index) {
-                    final empresa = empresas[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 16.0, vertical: 8.0),
-                      child: ListTile(
-                        leading: const Icon(Icons.business, size: 40),
-                        title: Text(empresa.nombre),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("CIF: ${empresa.cif}"),
-                            Text("Sector: ${empresa.sector}"),
-                          ],
-                        ),
-                        trailing: IconButton(
-                          icon: const Icon(Icons.person_add),
-                          onPressed: () => _showConfirmDialog(empresa),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
+  child: _empresasFiltradas.isEmpty
+      ? Center(
+          child: Text(
+            _searchController.text.isEmpty
+                ? "No hay empresas registradas"
+                : "No se encontraron resultados",
           ),
+        )
+      : ListView.builder(
+          itemCount: _empresasFiltradas.length,
+          itemBuilder: (context, index) {
+            final empresa = _empresasFiltradas[index];
+            return Card(
+              margin: const EdgeInsets.symmetric(
+                  horizontal: 16.0, vertical: 8.0),
+              child: ListTile(
+                leading: const Icon(Icons.business, size: 40),
+                title: Text(empresa.nombre),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("CIF: ${empresa.cif}"),
+                    Text("Sector: ${empresa.sector}"),
+                  ],
+                ),
+                trailing: IconButton(
+                  icon: const Icon(Icons.person_add),
+                  onPressed: () => _showConfirmDialog(empresa),
+                ),
+              ),
+            );
+          },
+        ),
+)
         ],
       ),
     );
