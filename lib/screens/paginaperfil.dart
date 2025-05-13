@@ -39,7 +39,7 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
                   children: [
                     CircleAvatar(
                       backgroundColor: AppColors.gradientPurple,
-                      radius: 60,
+                      radius: 50,
                       child: Text(
                         widget.persona.nombre[0], // Mostrar la inicial del nombre
                         style: const TextStyle(fontSize: 45),

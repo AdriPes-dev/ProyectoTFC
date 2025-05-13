@@ -48,11 +48,10 @@ class _EstadosContrasenya extends State<TextFormContrasenya> {
         keyboardType: TextInputType.visiblePassword,
         obscureText: !_estadoContrasenya,
         decoration: InputDecoration(
-          fillColor: Colors.white,
+          fillColor: Colors.transparent,
           filled: true,
           contentPadding: EdgeInsets.all(12.0),
           labelText: "Introduce tu contraseña",
-          labelStyle: TextStyle(color: Colors.grey[600]),
           border: InputBorder.none, // Elimina el borde interno
           suffixIcon: IconButton(
             icon: Icon(

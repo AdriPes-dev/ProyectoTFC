@@ -102,7 +102,6 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
     const textStyle = TextStyle(fontSize: 40, fontWeight: FontWeight.bold, color: Colors.white);
 
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
@@ -110,7 +109,10 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 10),
-              Text("¿Eres nuevo?", style: textStyle.copyWith(color: Colors.black)),
+              Text("¿Eres nuevo?", style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 40,
+                  ),),
               ShaderMask(
                 shaderCallback: (bounds) => AppColors.mainGradient.createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
                 child: Text("¡Regístrate!", style: textStyle),
@@ -137,19 +139,17 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                     border: GradientBoxBorder(
-                      gradient: const LinearGradient(colors: [Colors.blue, Colors.purple]),
+                      gradient: AppColors.mainGradient,
                       width: 2,
                     ),
                   ),
                   child: _isLoading
                       ? const CircularProgressIndicator(valueColor: AlwaysStoppedAnimation(Colors.blue))
                       : ShaderMask(
-                          shaderCallback: (bounds) => const LinearGradient(
-                            colors: [Colors.blue, Colors.purple],
-                          ).createShader(bounds),
+                          shaderCallback: (bounds) => AppColors.mainGradient.createShader(bounds),
                           blendMode: BlendMode.srcIn,
                           child: const Text(
                             "Registrarse",
@@ -187,7 +187,7 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
         decoration: InputDecoration(
           labelText: label,
           filled: true,
-          fillColor: Colors.white,
+          fillColor: Colors.transparent,
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           suffixIcon: Icon(icon, color: Colors.grey[600]),

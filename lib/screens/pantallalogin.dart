@@ -116,7 +116,7 @@ class _ContenidoPrincipalState extends State<ContenidoPrincipal> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
-                    color: _isLoading ? Colors.grey : Colors.white,
+                    color: _isLoading ? Colors.grey : Colors.transparent,
                     borderRadius: BorderRadius.circular(8),
                     border: GradientBoxBorder(
                       gradient: AppColors.mainGradient,

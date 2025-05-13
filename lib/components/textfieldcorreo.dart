@@ -48,7 +48,7 @@ class _TextFormCorreoState extends State<TextFormCorreo> {
           decoration: InputDecoration(
             labelText: "Introduce tu correo electrónico",
             filled: true,
-            fillColor: Colors.white, // Fondo blanco
+            fillColor: Colors.transparent, // Fondo blanco
             border: InputBorder.none, // Elimina el borde interno
             contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             suffixIcon: Icon(Icons.mail, color: Colors.grey[600]),

@@ -37,13 +37,12 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      
       appBar: AppBar(
         backgroundColor: Colors.transparent, //Color.fromARGB(255, 65, 140, 198),
         title: Text(
           widget.title,
-          style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-        ),
+          style:  Theme.of(context).textTheme.titleMedium,),
         elevation: 0,
         centerTitle: true,
        leading: IconButton(
