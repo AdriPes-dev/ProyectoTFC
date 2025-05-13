@@ -1,6 +1,7 @@
 import 'package:fichi/firebase_options.dart';
 import 'package:fichi/screens/pantallalogin.dart';
 import 'package:fichi/screens/pantallaregistro.dart';
+import 'package:fichi/theme/appcolors.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:liquid_swipe/liquid_swipe.dart';
@@ -32,9 +33,8 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Fichi',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF317AB2)),
-      ),
+      theme: AppColors.lightTheme,
+      darkTheme: AppColors.darkTheme,
       home: Stack(
         children:[ LiquidSwipe(
           onPageChangeCallback: (activePageIndex) {
@@ -57,8 +57,8 @@ class _MyAppState extends State<MyApp> {
               count: 2,
               effect: WormEffect(
                 spacing: 12,
-                dotColor: Colors.purple,
-                activeDotColor: Colors.blue,
+                dotColor: AppColors.gradientPurple,
+                activeDotColor: AppColors.primaryBlue,
               ),
               ),
           ),

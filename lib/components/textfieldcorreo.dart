@@ -1,4 +1,5 @@
 import 'package:fichi/components/bordesdegradados.dart';
+import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/material.dart';
 
 class TextFormCorreo extends StatefulWidget {
@@ -36,7 +37,7 @@ class _TextFormCorreoState extends State<TextFormCorreo> {
           // Borde gris si no está enfocado, degradado si sí
           border: _focusNode.hasFocus
               ? GradientBoxBorder( // Borde degradado al enfocar
-                  gradient: LinearGradient(colors: [Colors.blue, Colors.purple]),
+                  gradient: AppColors.mainGradient,
                   width: 2.0,
                 )
               : Border.all(color: Colors.grey, width: 1.5), // Gris por defecto

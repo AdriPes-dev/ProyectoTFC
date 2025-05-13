@@ -3,7 +3,8 @@ import 'package:fichi/main.dart';
 import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/screens/paginaprincipal.dart';
 import 'package:fichi/screens/pantallaempresa.dart';
-import 'package:fichi/screens/pantallaperfil.dart';
+import 'package:fichi/screens/paginaperfil.dart';
+import 'package:fichi/theme/appcolors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -38,7 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.blue, //Color.fromARGB(255, 65, 140, 198),
+        backgroundColor: Colors.transparent, //Color.fromARGB(255, 65, 140, 198),
         title: Text(
           widget.title,
           style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
@@ -62,7 +63,8 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: Colors.transparent,
-        color: Colors.blue,
+        color: AppColors.primaryBlue,
+        buttonBackgroundColor: AppColors.primaryBlue,
         animationDuration: Duration(milliseconds: 100),
         items: [Icon(Icons.home), Icon(Icons.person), Icon(Icons.business)],
         onTap: (index) {

@@ -1,4 +1,5 @@
 import 'package:fichi/components/bordesdegradados.dart';
+import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/material.dart';
 
 class TextFormContrasenya extends StatefulWidget {
@@ -35,8 +36,8 @@ class _EstadosContrasenya extends State<TextFormContrasenya> {
         borderRadius: BorderRadius.circular(8.0),
         // Borde gris si no está enfocado, degradado si sí
         border: _focusNode.hasFocus
-            ? GradientBoxBorder( // Usa tu clase personalizada
-                gradient: LinearGradient(colors: [Colors.blue, Colors.purple]),
+            ? GradientBoxBorder(
+                gradient: AppColors.mainGradient,
                 width: 2.0,
               )
             : Border.all(color: Colors.grey, width: 1.5), // Gris por defecto

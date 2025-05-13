@@ -1,6 +1,7 @@
 import 'package:fichi/components/bordesdegradados.dart';
 import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/screens/menuprincipal.dart';
+import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fichi/services/auth_service.dart';
@@ -111,9 +112,7 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
               const SizedBox(height: 10),
               Text("¿Eres nuevo?", style: textStyle.copyWith(color: Colors.black)),
               ShaderMask(
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: [Colors.blue, Colors.purple],
-                ).createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
+                shaderCallback: (bounds) => AppColors.mainGradient.createShader(Rect.fromLTWH(0, 0, bounds.width, bounds.height)),
                 child: Text("¡Regístrate!", style: textStyle),
               ),
               const SizedBox(height: 30),
@@ -178,7 +177,7 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: GradientBoxBorder(
-          gradient: const LinearGradient(colors: [Colors.blue, Colors.purple]),
+          gradient: AppColors.mainGradient,
           width: 2.0,
         ),
       ),

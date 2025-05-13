@@ -1,3 +1,4 @@
+import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/material.dart';
 import 'package:fichi/model_classes/persona.dart';
 
@@ -18,39 +19,43 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           // Encabezado con la foto y nombre
-          Container(
-            width: double.infinity,
-            height: 200,
-            decoration: BoxDecoration(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(0),
-                topRight: Radius.circular(0),
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
+          Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: Container(
+              width: double.infinity,
+              height: 200,
+              decoration: BoxDecoration(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                ),
+                color: AppColors.primaryBlue,
               ),
-              color: Colors.blue,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 60,
-                    child: Text(
-                      widget.persona.nombre[0], // Mostrar la inicial del nombre
-                      style: const TextStyle(fontSize: 45),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: AppColors.gradientPurple,
+                      radius: 60,
+                      child: Text(
+                        widget.persona.nombre[0], // Mostrar la inicial del nombre
+                        style: const TextStyle(fontSize: 45),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 10),
-                  Text(
-                    widget.persona.nombre + " " + widget.persona.apellidos,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 25,
-                      color: Colors.black,
+                    const SizedBox(width: 10),
+                    Text(
+                      widget.persona.nombre + " " + widget.persona.apellidos,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 25,
+                        color: Colors.black,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

@@ -3,6 +3,7 @@ import 'package:fichi/components/textfieldcontrasenya.dart';
 import 'package:fichi/components/textfieldcorreo.dart';
 import 'package:fichi/screens/menuprincipal.dart';
 import 'package:fichi/services/auth_service.dart';
+import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -13,7 +14,7 @@ class PageLogin extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: const Stack(children: [ContenidoPrincipal()]),
-      backgroundColor: Colors.white,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
     );
   }
 }
@@ -82,15 +83,16 @@ class _ContenidoPrincipalState extends State<ContenidoPrincipal> {
                 padding: const EdgeInsets.all(10.0),
                 child: Text(
                   "¡Bienvenido!",
-                  style: textStyle.copyWith(color: Colors.black),
+                  style:  Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 40,
+                  ),
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.all(10),
                 child: ShaderMask(
-                  shaderCallback: (bounds) => LinearGradient(
-                    colors: [Colors.blue, Colors.purple],
-                  ).createShader(
+                  shaderCallback: (bounds) => AppColors.mainGradient.createShader(
                     Rect.fromLTWH(0, 0, bounds.width, bounds.height),
                   ),
                   child: Text(
@@ -117,16 +119,14 @@ class _ContenidoPrincipalState extends State<ContenidoPrincipal> {
                     color: _isLoading ? Colors.grey : Colors.white,
                     borderRadius: BorderRadius.circular(8),
                     border: GradientBoxBorder(
-                      gradient: LinearGradient(colors: [Colors.blue, Colors.purple]),
+                      gradient: AppColors.mainGradient,
                       width: 2,
                     ),
                   ),
                   child: _isLoading
                       ? CircularProgressIndicator(color: Colors.blue)
                       : ShaderMask(
-                          shaderCallback: (bounds) => LinearGradient(
-                            colors: [Colors.blue, Colors.purple],
-                          ).createShader(bounds),
+                          shaderCallback: (bounds) => AppColors.mainGradient.createShader(bounds),
                           blendMode: BlendMode.srcIn,
                           child: Text(
                             "Iniciar Sesión",

@@ -89,7 +89,10 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Encabezado con información de la empresa
-            _buildEncabezadoEmpresa(),
+            Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: _buildEncabezadoEmpresa(),
+            ),
             
             // Sección del CEO
             if (_ceo != null) _buildSeccionCEO(),
@@ -111,7 +114,7 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Colors.blue,
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

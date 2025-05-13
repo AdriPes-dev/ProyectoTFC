@@ -1,112 +1,151 @@
+import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-class Tiempo extends StatefulWidget {
-  const Tiempo({super.key});
+class TimeTracker extends StatefulWidget {
+  const TimeTracker({super.key});
 
   @override
-  State<Tiempo> createState() => _TiempoState();
+  State<TimeTracker> createState() => _TimeTrackerState();
 }
 
-class _TiempoState extends State<Tiempo> {
-  DateTime? horaEntrada;
-  DateTime? horaSalida;
-  Duration? tiempoTrabajado;
+class _TimeTrackerState extends State<TimeTracker> {
+  DateTime? _startTime;
+  DateTime? _endTime;
+  Duration? _workedDuration;
+  bool _isClockedIn = false;
 
-  bool estaFichado = false;
-
-  void ficharEntrada() {
+  void _clockIn() {
     setState(() {
-      horaEntrada = DateTime.now();
-      horaSalida = null;
-      tiempoTrabajado = null;
-      estaFichado = true;
+      _startTime = DateTime.now();
+      _endTime = null;
+      _workedDuration = null;
+      _isClockedIn = true;
     });
   }
 
-  void ficharSalida() {
-    if (horaEntrada != null) {
+  void _clockOut() {
+    if (_startTime != null) {
       setState(() {
-        horaSalida = DateTime.now();
-        tiempoTrabajado = horaSalida!.difference(horaEntrada!);
-        estaFichado = false;
+        _endTime = DateTime.now();
+        _workedDuration = _endTime!.difference(_startTime!);
+        _isClockedIn = false;
       });
     }
   }
 
-  String formatDuration(Duration duration) {
+  String _formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
-    String horas = twoDigits(duration.inHours);
-    String minutos = twoDigits(duration.inMinutes.remainder(60));
-    String segundos = twoDigits(duration.inSeconds.remainder(60));
-    return "$horas:$minutos:$segundos";
+    final hours = twoDigits(duration.inHours);
+    final minutes = twoDigits(duration.inMinutes.remainder(60));
+    final seconds = twoDigits(duration.inSeconds.remainder(60));
+    return "$hours:$minutes:$seconds";
   }
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          height: 220,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-            color: Colors.blue,
-          ),
+    final theme = Theme.of(context);
+    
+    return Card(
+      elevation: 20,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
         ),
-        Positioned.fill(
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      estaFichado
-                          ? "Fichado a las: ${DateFormat('HH:mm:ss').format(horaEntrada!)}"
-                          : horaSalida != null
-                              ? "Salida a las: ${DateFormat('HH:mm:ss').format(horaSalida!)}"
-                              : "Pulsa para fichar",
-                      style: TextStyle(fontSize: 20, color: Colors.white),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header
+            Column(
+              children: [
+                Icon(Icons.access_time, color: AppColors.primaryBlue, size: 40),
+                const SizedBox(width: 15),
+                Text(
+                  'Registro de Tiempo',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            
+            // Time Display
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Text(
+                    _isClockedIn 
+                        ? 'Entrada: ${DateFormat('HH:mm:ss').format(_startTime!)}'
+                        : _endTime != null
+                            ? 'Salida: ${DateFormat('HH:mm:ss').format(_endTime!)}'
+                            : 'Presiona Entrada para comenzar',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: Colors.black,
                     ),
-                    SizedBox(height: 10),
-                    if (tiempoTrabajado != null)
-                      Text(
-                        "Tiempo trabajado: ${formatDuration(tiempoTrabajado!)}",
-                        style: TextStyle(fontSize: 18, color: Colors.white),
+                  ),
+                  if (_workedDuration != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      'Tiempo trabajado: ${_formatDuration(_workedDuration!)}',
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: AppColors.textBlack,
+                        fontWeight: FontWeight.bold,
                       ),
-                    SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton.icon(
-                          onPressed: estaFichado ? null : ficharEntrada,
-                          icon: Icon(Icons.play_arrow),
-                          label: Text("Entrada"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF317AB2),
-                            disabledBackgroundColor: Colors.grey,
-                          ),
-                        ),
-                        SizedBox(width: 20),
-                        ElevatedButton.icon(
-                          onPressed: estaFichado ? ficharSalida : null,
-                          icon: Icon(Icons.stop),
-                          label: Text("Salida"),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(0xFF317AB2),
-                            disabledBackgroundColor: Colors.grey,
-                          ),
-                        ),
-                      ],
                     ),
                   ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            
+            // Buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(child: FilledButton.icon(
+              onPressed: _isClockedIn ? null : _clockIn,
+              icon: const Icon(Icons.play_arrow , color: AppColors.gradientPurple,),
+              label: const Text('Entrada', style: TextStyle( color: AppColors.gradientPurple),),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.primaryBlue,
+                disabledBackgroundColor: Colors.grey.shade600,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
+              ),
+            ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: FilledButton.icon(
+                    onPressed: _isClockedIn ? _clockOut : null,
+                    icon: const Icon(Icons.stop, color: AppColors.primaryBlue,),
+                    label: const Text('Salida', style: TextStyle( color: AppColors.primaryBlue),),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppColors.gradientPurple,
+                      disabledBackgroundColor: Colors.grey.shade600,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),),
+                ],
               ),
             ],
           ),
         ),
-      ],
-    );
+      );
+    }
   }
-}
