@@ -9,6 +9,8 @@ class WidgetIncidencia extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final shadowColor = isDarkMode ? Colors.white54 : Colors.black26;
     return Expanded(
       flex: 1,
       child: GestureDetector(
@@ -22,7 +24,7 @@ class WidgetIncidencia extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          
+          shadowColor: shadowColor,
           child: Container(
               decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),

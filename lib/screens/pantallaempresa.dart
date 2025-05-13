@@ -216,10 +216,12 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
   }
 
   Widget _buildTarjetaPersona(Persona persona, {bool esCEO = false}) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final colorBox = isDarkMode ? Colors.black : Colors.white;
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorBox,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(

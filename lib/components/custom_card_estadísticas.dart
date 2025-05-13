@@ -8,12 +8,15 @@ class CartelEstadisticas extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final shadowColor = isDarkMode ? Colors.white54 : Colors.black26;
     return Expanded(
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
         elevation: 10,
+        shadowColor: shadowColor,
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),

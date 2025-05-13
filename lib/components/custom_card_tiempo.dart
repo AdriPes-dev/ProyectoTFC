@@ -45,9 +45,12 @@ class _TimeTrackerState extends State<TimeTracker> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final shadowColor = isDarkMode ? Colors.white54 : Colors.black26;
     
     return Card(
-      elevation: 20,
+      elevation: 5,
+      shadowColor: shadowColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
