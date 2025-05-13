@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fichi/model_classes/actividad.dart';
 import 'package:fichi/model_classes/empresa.dart';
+import 'package:fichi/model_classes/incidencia.dart';
 import 'package:fichi/model_classes/persona.dart';
 
 class FirebaseService {
@@ -60,5 +62,70 @@ class FirebaseService {
     return null;
   }
 }
+
+Future<void> guardarIncidenciaEnFirestore(Incidencia incidencia) async {
+  try {
+    await FirebaseFirestore.instance.collection('incidencias').add({
+      'id': incidencia.id,
+      'dniEmpleado': incidencia.dniEmpleado,
+      'cifEmpresa': incidencia.cifEmpresa,
+      'titulo': incidencia.titulo,
+      'descripcion': incidencia.descripcion,
+      'estado': incidencia.estado,
+      'fechaReporte': incidencia.fechaReporte.toIso8601String(),
+    });
+    print('Incidencia guardada correctamente.');
+  } catch (e) {
+    print('Error al guardar la incidencia: $e');
+    rethrow;
+  }
+}
+
+Future<List<Incidencia>> obtenerIncidenciasPorEmpresa(String cifEmpresa) async {
+  try {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('incidencias')
+        .where('cifEmpresa', isEqualTo: cifEmpresa)
+        .get();
+
+    return querySnapshot.docs.map((doc) {
+      final data = doc.data();
+      return Incidencia(
+        id: data['id'] ?? doc.id,
+        dniEmpleado: data['dniEmpleado'] ?? '',
+        cifEmpresa: data['cifEmpresa'] ?? '',
+        titulo: data['titulo'] ?? '',
+        descripcion: data['descripcion'] ?? '',
+        estado: data['estado'] ?? 'Pendiente',
+        fechaReporte: data['fechaReporte'] != null
+            ? DateTime.parse(data['fechaReporte'])
+            : DateTime.now(),
+      );
+    }).toList();
+  } catch (e) {
+    print("Error al obtener incidencias de la empresa $cifEmpresa: $e");
+    return [];
+  }
+}
+
+  Future<void> guardarActividadEnFirestore(Actividad actividad) async {
+    try {
+      await _db.collection('actividades').add({
+        'id': actividad.id,
+        'titulo': actividad.titulo,
+        'descripcion': actividad.descripcion,
+        'dniCreador': actividad.dniCreador,
+        'empresaCif': actividad.empresaCif,
+        'fechaCreacion': actividad.fechaCreacion.toIso8601String(),
+        'fechaActividad': actividad.fechaActividad.toIso8601String(),
+        'aceptada': actividad.aceptada,
+      });
+      print('Actividad guardada correctamente.');
+    } catch (e) {
+      print('Error al guardar la actividad: $e');
+      rethrow;
+    }
+  }
+
 
 }

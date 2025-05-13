@@ -29,7 +29,7 @@ class PaginaPrincipal extends StatelessWidget {
             child: Row(
               children: [
                 // Bloque izquierdo - Incidencia
-                WidgetIncidencia(),
+                WidgetIncidencia(p: persona,),
 
                 const SizedBox(width: 16),
 
@@ -39,7 +39,7 @@ class PaginaPrincipal extends StatelessWidget {
                   child: Column(
                     children: [
                       // Registrar Actividad
-                      RegistrarActividad(),
+                      RegistrarActividad(p: persona,),
 
                       const SizedBox(height: 16),
 

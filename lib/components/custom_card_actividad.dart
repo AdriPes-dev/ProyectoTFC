@@ -1,11 +1,17 @@
+import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/screens/pantallaregistraractividad.dart';
 import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/material.dart';
 
 class RegistrarActividad extends StatelessWidget {
+
+  final Persona p;
+
   const RegistrarActividad({
     super.key,
+    required this.p,
   });
+  
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +20,7 @@ class RegistrarActividad extends StatelessWidget {
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => PantallaRegistrarActividad()));
+          Navigator.push(context, MaterialPageRoute(builder: (_) => CrearActividadScreen(persona: p,)));
         },
         child: Card(
           shape: RoundedRectangleBorder(

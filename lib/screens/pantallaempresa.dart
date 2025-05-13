@@ -1,9 +1,11 @@
 import 'package:fichi/model_classes/empresa.dart';
+import 'package:fichi/screens/pantallaverincindencias.dart';
 import 'package:fichi/services/consultas_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/screens/crearempresa.dart';
 import 'package:fichi/screens/unirseempresa.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PantallaEmpresa extends StatefulWidget {
   final Persona personaAutenticada;
@@ -270,12 +272,23 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
         trailing: IconButton(
           icon: const Icon(Icons.phone),
           onPressed: () {
-            // Lógica para llamar
+            _hacerLlamada(
+              persona.telefono,
+            );
           },
         ),
       ),
     );
   }
+
+   Future<void> _hacerLlamada(String telefono) async {
+  final Uri url = Uri(scheme: 'tel', path: telefono);
+  if (await canLaunchUrl(url)) {
+    await launchUrl(url);
+  } else {
+    print('No se pudo realizar la llamada');
+  }
+}
 
   Widget _buildAccionesJefe() {
     return Padding(
@@ -303,8 +316,8 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
                 onPressed: _anyadirEmpleado,
               ),
               ActionChip(
-                avatar: const Icon(Icons.bar_chart, size: 18),
-                label: const Text('Estadísticas'),
+                avatar: const Icon(Icons.warning, size: 18),
+                label: const Text('Incidencias'),
                 onPressed: _verEstadisticas,
               ),
               ActionChip(
@@ -324,7 +337,12 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
   }
 
   void _verEstadisticas() {
-    // Implementar lógica para ver estadísticas
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PantallaIncidenciasEmpresa(empresa: _empresa!),
+      ),
+    );
   }
 
   void _configurarEmpresa() {

@@ -1,29 +1,29 @@
-import 'empresa.dart';
-import 'persona.dart';
-
 class Incidencia {
   String id;
-  Persona empleado;
-  Empresa empresa;
+  String dniEmpleado;
+  String cifEmpresa;
+  String titulo;
   String descripcion;
-  String estado; // "Pendiente", "En proceso", "Resuelta"
+  String estado; // "Pendiente", "Resuelta"
   DateTime fechaReporte;
-  bool? aceptada;
+
 
   Incidencia({
     required this.id,
-    required this.empleado,
-    required this.empresa,
+    required this.dniEmpleado,
+    required this.cifEmpresa,
+    required this.titulo,
     required this.descripcion,
     required this.estado,
     required this.fechaReporte,
   });
 
   // Constructor desde un mapa (JSON o Firestore)
-  Incidencia.map(Map<String, dynamic> obj, Persona empleado, Empresa empresa)
+   Incidencia.fromMap(Map<String, dynamic> obj)
       : id = obj['id'] ?? '',
-        empleado = empleado,
-        empresa = empresa,
+        dniEmpleado = obj['dniEmpleado'] ?? '',
+        cifEmpresa = obj['cifEmpresa'] ?? '',
+        titulo = obj['titulo'] ?? '',
         descripcion = obj['descripcion'] ?? '',
         estado = obj['estado'] ?? 'Pendiente',
         fechaReporte = obj['fechaReporte'] != null
@@ -34,8 +34,9 @@ class Incidencia {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'empleado': empleado.toMap(),
-      'empresa': empresa.toMap(),
+      'dniEmpleado': dniEmpleado,
+      'cifEmpresa': cifEmpresa,
+      'titulo': titulo,
       'descripcion': descripcion,
       'estado': estado,
       'fechaReporte': fechaReporte.toIso8601String(),

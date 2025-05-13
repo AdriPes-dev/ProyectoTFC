@@ -49,7 +49,7 @@ class _TimeTrackerState extends State<TimeTracker> {
     final shadowColor = isDarkMode ? Colors.white54 : Colors.black26;
     
     return Card(
-      elevation: 5,
+      elevation: 10,
       shadowColor: shadowColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),

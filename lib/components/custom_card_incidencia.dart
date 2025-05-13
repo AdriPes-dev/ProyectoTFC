@@ -1,10 +1,14 @@
+import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/screens/pantallaregistrarincidencia.dart';
 import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/material.dart';
 
 class WidgetIncidencia extends StatelessWidget {
+  final Persona p;
+
   const WidgetIncidencia({
     super.key,
+    required this.p,
   });
 
   @override
@@ -17,13 +21,14 @@ class WidgetIncidencia extends StatelessWidget {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const RegistrarIncidencia()),
+            MaterialPageRoute(builder: (_) => RegistrarIncidencia(persona: p,)),
           );
         },
         child: Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
+          elevation: 10,
           shadowColor: shadowColor,
           child: Container(
               decoration: BoxDecoration(
