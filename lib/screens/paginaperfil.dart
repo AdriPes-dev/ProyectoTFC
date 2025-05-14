@@ -83,8 +83,8 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: TextField(
-        enabled: false, // Hace que el campo sea solo lectura
-        controller: TextEditingController(text: value), // Muestra el valor de la persona
+        enabled: false,
+        controller: TextEditingController(text: value),
         decoration: InputDecoration(
           labelText: label,
         ),
