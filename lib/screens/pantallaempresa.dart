@@ -1,5 +1,6 @@
 import 'package:fichi/model_classes/empresa.dart';
 import 'package:fichi/screens/pantallaverincindencias.dart';
+import 'package:fichi/screens/pantallaversolicitudesunion.dart';
 import 'package:fichi/services/consultas_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:fichi/model_classes/persona.dart';
@@ -21,6 +22,7 @@ class PantallaEmpresa extends StatefulWidget {
 }
 
 class _PantallaEmpresaState extends State<PantallaEmpresa> {
+  late Persona _personaAutenticada;
   Empresa? _empresa;
   Persona? _ceo;
   List<Persona> _empleados = [];
@@ -30,7 +32,8 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
   @override
   void initState() {
     super.initState();
-    _cargarDatosEmpresa();
+    _personaAutenticada = widget.personaAutenticada;
+  _cargarDatosEmpresa();
   }
 
   Future<void> _cargarDatosEmpresa() async {
@@ -333,7 +336,12 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
   }
 
   void _anyadirEmpleado() {
-    // Implementar lógica para añadir empleado
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SolicitudesEntradaScreen(empresaCif: widget.personaAutenticada.empresaCif!,),
+      ),
+    );
   }
 
   void _verEstadisticas() {
@@ -388,15 +396,18 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
   }
 
   void _crearEmpresa() async {
-  final resultado = await Navigator.push(
+  final personaActualizada = await Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => CrearEmpresaScreen(persona: widget.personaAutenticada),
+      builder: (context) => CrearEmpresaScreen(persona: _personaAutenticada),
     ),
   );
 
-  if (resultado == true) {
-    _recargarDatos();
+  if (personaActualizada != null && personaActualizada.empresaCif != null) {
+    setState(() {
+      _personaAutenticada = personaActualizada;
+    });
+    await _cargarDatosEmpresa();
   }
 }
 

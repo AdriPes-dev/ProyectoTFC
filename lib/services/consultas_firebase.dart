@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fichi/model_classes/actividad.dart';
 import 'package:fichi/model_classes/empresa.dart';
 import 'package:fichi/model_classes/incidencia.dart';
 import 'package:fichi/model_classes/persona.dart';
+import 'package:fichi/model_classes/solicitudentrada.dart';
 
 class FirebaseService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -127,5 +130,90 @@ Future<List<Incidencia>> obtenerIncidenciasPorEmpresa(String cifEmpresa) async {
     }
   }
 
+  Future<void> guardarSolicitudIngreso(SolicitudIngreso solicitud) async {
+  try {
+    await FirebaseFirestore.instance.collection('solicitudes_ingreso').doc(solicitud.id).set({
+      'id': solicitud.id,
+      'dniSolicitante': solicitud.dniSolicitante,
+      'nombreSolicitante': solicitud.nombreSolicitante,
+      'empresaCif': solicitud.empresaCif,
+      'nombreEmpresa': solicitud.nombreEmpresa,
+      'fechaSolicitud': solicitud.fechaSolicitud.toIso8601String(),
+      'aceptada': solicitud.aceptada, // puede ser null al momento de crear
+    });
 
+    print('Solicitud de ingreso guardada correctamente.');
+  } catch (e) {
+    print('Error al guardar la solicitud de ingreso: $e');
+    rethrow;
+  }
+}
+
+Future<List<SolicitudIngreso>> obtenerSolicitudesPorEmpresa(String empresaCif, {bool? aceptada}) async {
+  try {
+    Query query = FirebaseFirestore.instance
+        .collection('solicitudes_ingreso')
+        .where('empresaCif', isEqualTo: empresaCif);
+
+    final snapshot = await query.get();
+
+    final solicitudes = snapshot.docs
+        .map((doc) => SolicitudIngreso.fromFirestore(doc))
+        .toList();
+
+    if (aceptada == null) {
+      return solicitudes.where((s) => s.aceptada == null).toList();
+    } else {
+      return solicitudes.where((s) => s.aceptada == aceptada).toList();
+    }
+  } catch (e) {
+    log("Error al obtener solicitudes de ingreso: $e");
+    return [];
+  }
+}
+
+Future<void> actualizarEstadoSolicitud(String solicitudId, bool aceptada) async {
+  try {
+    await FirebaseFirestore.instance
+        .collection('solicitudes_ingreso')
+        .doc(solicitudId)
+        .update({
+      'aceptada': aceptada,
+      'fechaActualizacion': DateTime.now().toIso8601String(),
+    });
+  } catch (e) {
+    throw Exception('Error al actualizar estado de solicitud: $e');
+  }
+}
+
+Future<void> agregarUsuarioAEmpresa(String dniSolicitante, String empresaCif) async {
+    try {
+      // 1. Actualizar la persona en la colección 'personas'
+      await FirebaseFirestore.instance
+          .collection('personas')
+          .doc(dniSolicitante)
+          .update({
+        'empresaCif': empresaCif, // Asignar el CIF de la empresa
+      });
+
+      // 2. Actualizar la solicitud en la colección 'solicitudes_ingreso'
+      final snapshot = await FirebaseFirestore.instance
+          .collection('solicitudes_ingreso')
+          .where('dni', isEqualTo: dniSolicitante)
+          .where('empresaCif', isEqualTo: empresaCif)
+          .limit(1)
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        final docId = snapshot.docs.first.id;
+        await FirebaseFirestore.instance
+            .collection('solicitudes_ingreso')
+            .doc(docId)
+            .update({'aceptada': true}); // Marcar como aceptada
+      }
+    } catch (e) {
+      print("Error al agregar usuario a la empresa: $e");
+      rethrow; // Relanzar el error si es necesario
+    }
+  }
 }

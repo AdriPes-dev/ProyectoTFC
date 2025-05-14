@@ -74,40 +74,29 @@ class _UnirseAEmpresaScreenState extends State<UnirseAEmpresaScreen> {
 }
 
   Future<void> _unirseAEmpresa(Empresa empresa) async {
-  // Si la persona ya tiene un empresaCif asignado, no se puede unir
-  if (widget.persona.empresaCif != null && widget.persona.empresaCif!.isNotEmpty) {
+  try {
+    await FirebaseFirestore.instance.collection('solicitudes_ingreso').add({
+      'dni': widget.persona.dni,
+      'empresaCif': empresa.cif,
+      'aceptada': null,
+      'fechaSolicitud': DateTime.now(),
+    });
+
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Ya perteneces a una empresa.")),
+        SnackBar(content: Text("Solicitud enviada a ${empresa.nombre}")),
       );
-    }
-    return;
-  }
-
-  try {
-    await FirebaseFirestore.instance
-        .collection('personas')
-        .doc(widget.persona.dni)
-        .update({
-      'empresaCif': empresa.cif,
-    });
-
-    // Actualiza el objeto local
-    setState(() {
-      widget.persona.empresaCif = empresa.cif;
-    });
-
-    if (mounted) {
-      Navigator.pop(context, true); // Devuelve 'true' si todo fue bien
+      Navigator.pop(context); // Regresa después de enviar la solicitud
     }
   } catch (e) {
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error al unirse a la empresa: ${e.toString()}")),
+        SnackBar(content: Text("Error al enviar solicitud: $e")),
       );
     }
   }
 }
+
 
   void _showConfirmDialog(Empresa empresa) {
     showDialog(

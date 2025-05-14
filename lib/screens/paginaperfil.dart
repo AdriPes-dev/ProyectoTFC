@@ -36,26 +36,33 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
               child: Padding(
                 padding: const EdgeInsets.all(20.0),
                 child: Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: AppColors.gradientPurple,
-                      radius: 50,
-                      child: Text(
-                        widget.persona.nombre[0], // Mostrar la inicial del nombre
-                        style: const TextStyle(fontSize: 45),
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      widget.persona.nombre + " " + widget.persona.apellidos,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 25,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
+  crossAxisAlignment: CrossAxisAlignment.center,
+  children: [
+    CircleAvatar(
+      backgroundColor: AppColors.gradientPurple,
+      radius: 50,
+      child: Text(
+        widget.persona.nombre[0].toUpperCase(),
+        style: const TextStyle(
+          fontSize: 40,
+        ),
+      ),
+    ),
+    const SizedBox(width: 10),
+    Expanded(
+      child: Text(
+        '${widget.persona.nombre} ${widget.persona.apellidos}',
+        overflow: TextOverflow.ellipsis, // Corta con "..."
+        softWrap: false,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 25,
+          color: Colors.black,
+        ),
+      ),
+    ),
+  ],
+),
               ),
             ),
           ),
@@ -68,8 +75,8 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ),
-          _buildTextField("Correo", widget.persona.correo),
-          _buildTextField("DNI", widget.persona.dni),
+          _buildTextFieldN("Correo", widget.persona.correo),
+          _buildTextFieldN("DNI", widget.persona.dni),
           _buildTextField("Nombre", widget.persona.nombre),
           _buildTextField("Apellidos", widget.persona.apellidos),
           _buildTextField("Teléfono", widget.persona.telefono),
@@ -83,8 +90,20 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: TextField(
-        enabled: false, // Hace que el campo sea solo lectura
-        controller: TextEditingController(text: value), // Muestra el valor de la persona
+        enabled: true,
+        controller: TextEditingController(text: value),
+        decoration: InputDecoration(
+          labelText: label,
+        ),
+      ),
+    );
+  }
+  Widget _buildTextFieldN(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: TextField(
+        enabled: false,
+        controller: TextEditingController(text: value),
         decoration: InputDecoration(
           labelText: label,
         ),

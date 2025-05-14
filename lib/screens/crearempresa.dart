@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/model_classes/empresa.dart';
@@ -127,8 +128,20 @@ class _CrearEmpresaScreenState extends State<CrearEmpresaScreen> {
                         jefeDni: widget.persona.dni
                       );
 
-                      // Disposear pantalla y devolver empresa
-                      Navigator.pop(context, nuevaEmpresa);
+                      await FirebaseFirestore.instance
+                        .collection('personas')
+                        .doc(widget.persona.dni)
+                        .update({'empresaCif': nuevaEmpresa.cif});
+                      widget.persona.empresaCif = nuevaEmpresa.cif;
+                      widget.persona.esJefe = true;
+
+                      // Muestra un mensaje de éxito
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Empresa creada con éxito')),
+                      );
+
+                      // Regresa a la pantalla anterior
+                      Navigator.pop(context, widget.persona);
                     } catch (e) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text('Error al crear la empresa: $e')),
