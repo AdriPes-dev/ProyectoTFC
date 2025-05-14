@@ -1,4 +1,3 @@
-import 'package:fichi/model_classes/empresa.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fichi/model_classes/persona.dart';

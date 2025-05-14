@@ -4,7 +4,7 @@ class Persona {
   final String apellidos;
   final String correo;
   final String telefono;
-  final bool esJefe;
+  bool esJefe;
   String? empresaCif;
 
   Persona({

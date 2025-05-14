@@ -14,7 +14,7 @@ class WidgetIncidencia extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final shadowColor = isDarkMode ? Colors.white54 : Colors.black26;
+    final shadowColor = isDarkMode ? Colors.white: Colors.black26;
     return Expanded(
       flex: 1,
       child: GestureDetector(
