@@ -10,8 +10,6 @@ import 'package:fichi/model_classes/solicitudentrada.dart';
 class FirebaseService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  
-
   Future<Empresa?> obtenerEmpresaPorCif(String cif) async {
     try {
       DocumentSnapshot<Map<String, dynamic>> doc =
@@ -68,7 +66,9 @@ class FirebaseService {
 
 Future<void> guardarIncidenciaEnFirestore(Incidencia incidencia) async {
   try {
-    await FirebaseFirestore.instance.collection('incidencias').add({
+   await FirebaseFirestore.instance
+    .collection('incidencias')
+    .doc(incidencia.id).set({
       'id': incidencia.id,
       'dniEmpleado': incidencia.dniEmpleado,
       'cifEmpresa': incidencia.cifEmpresa,
@@ -110,6 +110,60 @@ Future<List<Incidencia>> obtenerIncidenciasPorEmpresa(String cifEmpresa) async {
     return [];
   }
 }
+
+Future<List<Incidencia>> obtenerIncidenciasPendientesPorEmpresa(String cifEmpresa) async {
+  try {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('incidencias')
+        .where('cifEmpresa', isEqualTo: cifEmpresa)
+        .where('estado', isEqualTo: 'Pendiente')
+        .get();
+
+    return querySnapshot.docs.map((doc) {
+      final data = doc.data();
+      return Incidencia(
+        id: doc.id,
+        dniEmpleado: data['dniEmpleado'],
+        cifEmpresa: data['cifEmpresa'],
+        titulo: data['titulo'],
+        descripcion: data['descripcion'],
+        estado: data['estado'],
+        fechaReporte: DateTime.parse(data['fechaReporte']),
+      );
+    }).toList();
+  } catch (e) {
+    print('Error al obtener incidencias pendientes: $e');
+    return [];
+  }
+}
+
+Future<List<Incidencia>> obtenerIncidenciasLeidasPorEmpresa(String cifEmpresa) async {
+  try {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('incidencias')
+        .where('cifEmpresa', isEqualTo: cifEmpresa)
+        .where('estado', isEqualTo: 'leída')
+        .get();
+
+    return querySnapshot.docs.map((doc) {
+      final data = doc.data();
+      return Incidencia(
+        id: doc.id,
+        dniEmpleado: data['dniEmpleado'],
+        cifEmpresa: data['cifEmpresa'],
+        titulo: data['titulo'],
+        descripcion: data['descripcion'],
+        estado: data['estado'],
+        fechaReporte: DateTime.parse(data['fechaReporte']),
+      );
+    }).toList();
+  } catch (e) {
+    print('Error al obtener incidencias leídas: $e');
+    return [];
+  }
+}
+
+
 
   Future<void> guardarActividadEnFirestore(Actividad actividad) async {
     try {
@@ -216,4 +270,46 @@ Future<void> agregarUsuarioAEmpresa(String dniSolicitante, String empresaCif) as
       rethrow; // Relanzar el error si es necesario
     }
   }
+  Future<void> marcarIncidenciaComoLeida(String incidenciaId) async {
+  try {
+    await FirebaseFirestore.instance
+        .collection('incidencias')
+        .doc(incidenciaId)
+        .update({'estado': 'leída'});
+  } catch (e) {
+    throw Exception('Error al marcar la incidencia como leída: $e');
+  }
 }
+
+Future<List<Actividad>> obtenerActividadesRecientes(String empresaCif) async {
+  try {
+    final snapshot = await _db
+        .collection('actividades')
+        .where('empresaCif', isEqualTo: empresaCif)
+        .where('aceptada', isEqualTo: true)
+        .orderBy('fechaActividad', descending: true)
+        .get();
+
+    log("Actividades encontradas: ${snapshot.docs.length}");
+
+    return snapshot.docs.map((doc) => Actividad.fromFirestore(doc)).toList();
+  } catch (e) {
+    log('Error en obtenerActividadesRecientes: $e');
+    rethrow;
+  }
+}
+
+
+
+   Future<List<Actividad>> obtenerActividadesPendientes(String empresaCif) async {
+    final snapshot = await _db
+        .collection('actividades')
+        .where('empresaCif', isEqualTo: empresaCif)
+        .where('aceptada', isEqualTo: false)
+        .orderBy('fechaActividad', descending: true)
+        .get();
+
+    return snapshot.docs.map((doc) => Actividad.fromFirestore(doc)).toList();
+  }
+}
+

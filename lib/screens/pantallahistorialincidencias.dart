@@ -1,24 +1,20 @@
-import 'dart:developer';
-
 import 'package:fichi/model_classes/empresa.dart';
 import 'package:fichi/model_classes/incidencia.dart';
 import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/services/consultas_firebase.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 
-class PantallaIncidenciasEmpresa extends StatefulWidget {
+class PantallaHistorialIncidenciasEmpresa extends StatefulWidget {
   final Empresa empresa;
 
-  const PantallaIncidenciasEmpresa({super.key, required this.empresa});
+  const PantallaHistorialIncidenciasEmpresa({super.key, required this.empresa});
 
   @override
-  State<PantallaIncidenciasEmpresa> createState() => _PantallaIncidenciasEmpresaState();
+  State<PantallaHistorialIncidenciasEmpresa> createState() => _PantallaHistorialIncidenciasEmpresaState();
 }
 
-class _PantallaIncidenciasEmpresaState extends State<PantallaIncidenciasEmpresa> {
+class _PantallaHistorialIncidenciasEmpresaState extends State<PantallaHistorialIncidenciasEmpresa> {
   late Future<List<Map<String, dynamic>>> _incidenciasConEmpleado;
-  final FirebaseService _firebaseService = FirebaseService();
 
   @override
   void initState() {
@@ -28,7 +24,7 @@ class _PantallaIncidenciasEmpresaState extends State<PantallaIncidenciasEmpresa>
 
   Future<List<Map<String, dynamic>>> cargarIncidenciasConEmpleados() async {
     final service = FirebaseService();
-    final incidencias = await service.obtenerIncidenciasPendientesPorEmpresa(widget.empresa.cif);
+    final incidencias = await service.obtenerIncidenciasLeidasPorEmpresa(widget.empresa.cif);
 
     List<Map<String, dynamic>> resultado = [];
     for (var incidencia in incidencias) {
@@ -64,22 +60,7 @@ class _PantallaIncidenciasEmpresaState extends State<PantallaIncidenciasEmpresa>
               final incidencia = lista[index]['incidencia'] as Incidencia;
               final empleado = lista[index]['empleado'] as Persona;
 
-             return Slidable(
-  key: ValueKey(incidencia.id), // Usa un identificador único
-  startActionPane: ActionPane(
-    extentRatio: 0.25,
-    motion: const DrawerMotion(),
-    children: [
-      SlidableAction(
-        onPressed: (_) => _marcarComoLeida(incidencia), // Método que tú defines
-        backgroundColor: Colors.green,
-        foregroundColor: Colors.white,
-        icon: Icons.check_circle,
-        label: 'Leída',
-      ),
-    ],
-  ),
-  child: Card(
+             return Card(
     margin: const EdgeInsets.all(8),
     child: ListTile(
       leading: CircleAvatar(
@@ -97,7 +78,6 @@ class _PantallaIncidenciasEmpresaState extends State<PantallaIncidenciasEmpresa>
         ],
       ),
     ),
-  ),
 );
 
             },
@@ -106,24 +86,4 @@ class _PantallaIncidenciasEmpresaState extends State<PantallaIncidenciasEmpresa>
       ),
     );
   }
-  Future<void> _marcarComoLeida(Incidencia incidencia) async {
-    
-  try {
-    log(incidencia.id);
-    await _firebaseService.marcarIncidenciaComoLeida(incidencia.id);
-    _mostrarMensaje('Incidencia marcada como leída');
-  } catch (e) {
-    _mostrarError('No se pudo marcar como leída: $e');
-  }
-}
-
-void _mostrarMensaje(String mensaje) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(mensaje)));
-}
-
-void _mostrarError(String mensaje) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(mensaje), backgroundColor: Colors.red),
-  );
-}
 }

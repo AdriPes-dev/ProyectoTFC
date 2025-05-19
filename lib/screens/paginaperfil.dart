@@ -1,4 +1,6 @@
+import 'package:fichi/components/bordesdegradados.dart';
 import 'package:fichi/theme/appcolors.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fichi/model_classes/persona.dart';
 
@@ -12,6 +14,7 @@ class PantallaPerfil extends StatefulWidget {
 }
 
 class _PantallaPerfilState extends State<PantallaPerfil> {
+  bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -80,6 +83,37 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
           _buildTextField("Nombre", widget.persona.nombre),
           _buildTextField("Apellidos", widget.persona.apellidos),
           _buildTextField("Teléfono", widget.persona.telefono),
+          SizedBox(height: 20),
+          Center(child: CupertinoButton(
+                padding: EdgeInsets.zero,
+                onPressed: _isLoading ? null : _actualizarDatosUsuario,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: _isLoading ? Colors.grey : Colors.transparent,
+                    borderRadius: BorderRadius.circular(8),
+                    border: GradientBoxBorder(
+                      gradient: AppColors.mainGradient,
+                      width: 2,
+                    ),
+                  ),
+                  child: _isLoading
+                      ? CircularProgressIndicator(color: Colors.blue)
+                      : ShaderMask(
+                          shaderCallback: (bounds) => AppColors.mainGradient.createShader(bounds),
+                          blendMode: BlendMode.srcIn,
+                          child: Text(
+                            "Guardar cambios",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                ),
+              ),),
+              SizedBox(height: 30),
         ],
       ),
     );
@@ -109,5 +143,9 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
         ),
       ),
     );
+  }
+
+  _actualizarDatosUsuario(){
+
   }
 }

@@ -3,6 +3,7 @@ import 'package:fichi/screens/pantallaregistraractividad.dart';
 import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/material.dart';
 
+
 class RegistrarActividad extends StatelessWidget {
 
   final Persona p;
@@ -16,7 +17,7 @@ class RegistrarActividad extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final shadowColor = isDarkMode ? Colors.white54 : Colors.black26;
+    final shadowColor = isDarkMode ? Colors.white54 : Colors.black;
     return Expanded(
       child: GestureDetector(
         onTap: () {

@@ -36,7 +36,7 @@ class AuthService {
       dni: userData['dni'],
       telefono: userData['telefono'],
       esJefe: userData['esJefe'] ?? false,
-      empresaCif: userData['empresaCif'], // CORREGIDO: ya no usamos un objeto Empresa
+      empresaCif: userData['empresaCif'],
     );
   } catch (e) {
     print("Error en inicio de sesión: $e");
@@ -114,5 +114,7 @@ Future<void> crearEmpresa({
       rethrow;
     }
   }
+
+  
 
 }

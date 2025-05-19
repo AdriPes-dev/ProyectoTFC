@@ -9,7 +9,7 @@ class CartelEstadisticas extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final shadowColor = isDarkMode ? Colors.white : Colors.black26;
+    final shadowColor = isDarkMode ? Colors.white : Colors.black;
     return Expanded(
       child: Card(
         shape: RoundedRectangleBorder(
