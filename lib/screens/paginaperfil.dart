@@ -124,20 +124,21 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: TextField(
-        enabled: true,
-        controller: TextEditingController(text: value),
+        enabled: true, // Hace que el campo sea solo lectura
+        controller: TextEditingController(text: value), // Muestra el valor de la persona
         decoration: InputDecoration(
           labelText: label,
         ),
       ),
     );
   }
+
   Widget _buildTextFieldN(String label, String value) {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: TextField(
-        enabled: false,
-        controller: TextEditingController(text: value),
+        enabled: false, // Hace que el campo sea solo lectura
+        controller: TextEditingController(text: value), // Muestra el valor de la persona
         decoration: InputDecoration(
           labelText: label,
         ),
