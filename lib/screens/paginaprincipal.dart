@@ -1,5 +1,6 @@
 import 'package:fichi/components/custom_card_actividad.dart';
-import 'package:fichi/components/custom_card_estad%C3%ADsticas.dart';
+import 'package:fichi/components/custom_card_actividades.dart';
+import 'package:fichi/components/custom_card_estadísticas.dart';
 import 'package:fichi/components/custom_card_incidencia.dart';
 import 'package:fichi/components/custom_card_tiempo.dart';
 import 'package:fichi/model_classes/persona.dart';
@@ -14,8 +15,9 @@ class PaginaPrincipal extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
+Widget build(BuildContext context) {
+  return SingleChildScrollView(
+    child: Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
@@ -24,12 +26,12 @@ class PaginaPrincipal extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          // Parte inferior
-          Expanded(
+          IntrinsicHeight(
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Bloque izquierdo - Incidencia
-                WidgetIncidencia(p: persona,),
+                WidgetIncidencia(p: persona), // ¡Sin Expanded aquí!
 
                 const SizedBox(width: 16),
 
@@ -38,12 +40,8 @@ class PaginaPrincipal extends StatelessWidget {
                   flex: 2,
                   child: Column(
                     children: [
-                      // Registrar Actividad
-                      RegistrarActividad(p: persona,),
-
+                      RegistrarActividad(p: persona),
                       const SizedBox(height: 16),
-
-                      // Ver Estadísticas
                       CartelEstadisticas(),
                     ],
                   ),
@@ -51,9 +49,14 @@ class PaginaPrincipal extends StatelessWidget {
               ],
             ),
           ),
+           Padding(
+             padding: const EdgeInsets.all(20.0),
+             child: ActividadRecienteCard(p:persona),
+           ),
         ],
       ),
-    );
-  }
+    ),
+  );
 }
 
+}

@@ -1,5 +1,5 @@
-import 'dart:developer';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:fichi/services/consultas_firebase.dart';
 import 'package:fichi/model_classes/solicitudentrada.dart';
@@ -58,22 +58,6 @@ class _SolicitudesEntradaScreenState extends State<SolicitudesEntradaScreen> {
     }
   }
 
-  Future<String> _obtenerNombreSolicitante(String dni) async {
-  try {
-    
-    final persona = await _firebaseService.obtenerPersonaPorDni(dni);
-    
-    if (persona != null) {
-      return persona.nombre;
-    } else {
-      return 'Nombre no disponible';
-    }
-  } catch (e) {
-    return 'Error al obtener nombre';
-  }
-} 
-
-
   Future<void> _actualizarEstadoSolicitud(SolicitudIngreso solicitud, bool aceptada) async {
     try {
       await _firebaseService.actualizarEstadoSolicitud(solicitud.id, aceptada);
@@ -107,6 +91,31 @@ class _SolicitudesEntradaScreenState extends State<SolicitudesEntradaScreen> {
       ),
     );
   }
+
+  Future<String> _obtenerNombrePorDni(String dni) async {
+  try {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('personas')
+        .where('dni', isEqualTo: dni)
+        .limit(1)
+        .get();
+
+    if (snapshot.docs.isNotEmpty) {
+      final data = snapshot.docs.first.data();
+      final nombre = data['nombre'] ?? '';
+      final apellido = data['apellidos'] ?? '';
+      return '$nombre $apellido'.trim().isEmpty ? 'Nombre no disponible' : '$nombre $apellido';
+    } else {
+      return 'Nombre no disponible';
+    }
+  } catch (e) {
+    print('Error al obtener nombre por DNI: $e');
+    return 'Nombre no disponible';
+  }
+}
+
+
+
 
   void _mostrarDialogoConfirmacion(SolicitudIngreso solicitud, bool aceptar) {
     showDialog(
@@ -181,15 +190,29 @@ class _SolicitudesEntradaScreenState extends State<SolicitudesEntradaScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Text(
-                    solicitud.dniSolicitante,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
+  child: FutureBuilder<String>(
+    future: _obtenerNombrePorDni(solicitud.dniSolicitante),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Text(
+          'Cargando...',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        );
+      } else if (snapshot.hasError) {
+        return const Text(
+          'Error al cargar nombre',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        );
+      } else {
+        return Text(
+          snapshot.data ?? 'Nombre no disponible',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          overflow: TextOverflow.ellipsis,
+        );
+      }
+    },
+  ),
+),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(

@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Actividad {
   final String id;
   final String titulo;
@@ -46,5 +48,23 @@ class Actividad {
       'fechaActividad': fechaActividad.toIso8601String(),
       'aceptada': aceptada,
     };
+  }
+
+  factory Actividad.fromFirestore(DocumentSnapshot doc) {
+    final data = doc.data() as Map<String, dynamic>;
+    return Actividad(
+      id: doc.id,
+      titulo: data['titulo'] ?? '',
+      descripcion: data['descripcion'] ?? '',
+      dniCreador: data['dniCreador'] ?? '',
+      empresaCif: data['empresaCif'] ?? '',
+      fechaCreacion: (data['fechaCreacion'] is Timestamp)
+    ? (data['fechaCreacion'] as Timestamp).toDate()
+    : DateTime.tryParse(data['fechaCreacion'] ?? '') ?? DateTime.now(),
+      fechaActividad: (data['fechaActividad'] is Timestamp)
+    ? (data['fechaActividad'] as Timestamp).toDate()
+    : DateTime.tryParse(data['fechaActividad'] ?? '') ?? DateTime.now(),
+      aceptada: data['aceptada'],
+    );
   }
 }

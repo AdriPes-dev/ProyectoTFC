@@ -1,4 +1,5 @@
 import 'package:fichi/model_classes/empresa.dart';
+import 'package:fichi/screens/pantallahistorialincidencias.dart';
 import 'package:fichi/screens/pantallaverincindencias.dart';
 import 'package:fichi/screens/pantallaversolicitudesunion.dart';
 import 'package:fichi/services/consultas_firebase.dart';
@@ -321,12 +322,17 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
               ActionChip(
                 avatar: const Icon(Icons.warning, size: 18),
                 label: const Text('Incidencias'),
-                onPressed: _verEstadisticas,
+                onPressed: _verIncidencias,
               ),
               ActionChip(
                 avatar: const Icon(Icons.settings, size: 18),
                 label: const Text('Configuración'),
                 onPressed: _configurarEmpresa,
+              ),
+              ActionChip(
+                avatar: const Icon(Icons.history, size: 18),
+                label: const Text('Historial Incidencias'),
+                onPressed: _verHistorialIncidencias,
               ),
             ],
           ),
@@ -344,11 +350,20 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
     );
   }
 
-  void _verEstadisticas() {
+  void _verIncidencias() {
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => PantallaIncidenciasEmpresa(empresa: _empresa!),
+      ),
+    );
+  }
+
+  void _verHistorialIncidencias() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PantallaHistorialIncidenciasEmpresa(empresa: _empresa!),
       ),
     );
   }
@@ -402,6 +417,8 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
       builder: (context) => CrearEmpresaScreen(persona: _personaAutenticada),
     ),
   );
+
+  
 
   if (personaActualizada != null && personaActualizada.empresaCif != null) {
     setState(() {
