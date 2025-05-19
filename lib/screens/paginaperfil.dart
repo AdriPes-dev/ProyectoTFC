@@ -85,12 +85,25 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
     );
   }
 
+  Widget _buildTextFieldN(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: TextField(
+        enabled: false, // Hace que el campo sea solo lectura
+        controller: TextEditingController(text: value), // Muestra el valor de la persona
+        decoration: InputDecoration(
+          labelText: label,
+        ),
+      ),
+    );
+  }
+
   // Método para crear campos de texto
   Widget _buildTextField(String label, String value) {
     return Padding(
       padding: const EdgeInsets.all(20.0),
       child: TextField(
-        enabled: false, // Hace que el campo sea solo lectura
+        enabled: true, // Hace que el campo sea solo lectura
         controller: TextEditingController(text: value), // Muestra el valor de la persona
         decoration: InputDecoration(
           labelText: label,
