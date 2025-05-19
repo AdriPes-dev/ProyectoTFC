@@ -116,6 +116,9 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
   }
 
   Widget _buildEncabezadoEmpresa() {
+    final colorLetra = Theme.of(context).brightness == Brightness.dark
+      ? Colors.white
+      : Colors.black;
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -127,8 +130,8 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
         children: [
           Text(
             _empresa!.nombre,
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: colorLetra,
               fontSize: 28,
               fontWeight: FontWeight.bold,
             ),
@@ -145,6 +148,9 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
   }
 
   Widget _buildInfoEmpresa(String label, String value) {
+    final colorLetra = Theme.of(context).brightness == Brightness.dark
+      ? Colors.white
+      : Colors.black;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
@@ -152,15 +158,15 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
         children: [
           Text(
             '$label: ',
-            style: const TextStyle(
-              color: Colors.white,
+            style: TextStyle(
+              color: colorLetra,
               fontWeight: FontWeight.bold,
             ),
           ),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(color: Colors.white),
+              style: TextStyle(color: colorLetra),
             ),
           ),
         ],

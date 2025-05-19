@@ -17,6 +17,9 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
   bool _isLoading = false;
   @override
   Widget build(BuildContext context) {
+    final Color _colorLetra = Theme.of(context).brightness == Brightness.dark
+      ? Colors.white
+      : Colors.black;
     return SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -46,8 +49,9 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
       radius: 50,
       child: Text(
         widget.persona.nombre[0].toUpperCase(),
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 40,
+          color: _colorLetra,
         ),
       ),
     ),
@@ -57,10 +61,10 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
         '${widget.persona.nombre} ${widget.persona.apellidos}',
         overflow: TextOverflow.ellipsis, // Corta con "..."
         softWrap: false,
-        style: const TextStyle(
+        style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 25,
-          color: Colors.black,
+          color: _colorLetra
         ),
       ),
     ),

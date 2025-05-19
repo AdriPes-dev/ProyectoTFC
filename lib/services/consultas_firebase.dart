@@ -288,6 +288,7 @@ Future<List<Actividad>> obtenerActividadesRecientes(String empresaCif) async {
         .where('empresaCif', isEqualTo: empresaCif)
         .where('aceptada', isEqualTo: true)
         .orderBy('fechaActividad', descending: true)
+        .limit(3)
         .get();
 
     log("Actividades encontradas: ${snapshot.docs.length}");
