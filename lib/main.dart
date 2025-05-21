@@ -1,10 +1,14 @@
 import 'package:fichi/firebase_options.dart';
+import 'package:fichi/model_classes/persona.dart';
+import 'package:fichi/screens/menuprincipal.dart';
 import 'package:fichi/screens/pantallalogin.dart';
 import 'package:fichi/screens/pantallaregistro.dart';
+import 'package:fichi/services/consultas_firebase.dart';
 import 'package:fichi/theme/appcolors.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:liquid_swipe/liquid_swipe.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 Future<void> main() async {
@@ -13,11 +17,20 @@ Future<void> main() async {
       options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(const MyApp());
+   SharedPreferences prefs = await SharedPreferences.getInstance();
+  String? dni = prefs.getString('dni');
+
+  Persona? persona;
+  if (dni != null) {
+    persona = await FirebaseService().obtenerPersonaPorDni(dni);
+  }
+
+  runApp(MyApp(personaAutenticada: persona,));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final Persona? personaAutenticada;
+  const MyApp({super.key, this.personaAutenticada});
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -35,7 +48,9 @@ class _MyAppState extends State<MyApp> {
       title: 'Fichi',
       theme: AppColors.lightTheme,
       darkTheme: AppColors.darkTheme,
-      home: Stack(
+       home: widget.personaAutenticada != null
+          ? MyHomePage(persona: widget.personaAutenticada!, title: 'F I C H I')
+          : Stack(
         children:[ LiquidSwipe(
           onPageChangeCallback: (activePageIndex) {
             setState(() {

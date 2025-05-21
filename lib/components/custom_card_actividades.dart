@@ -57,7 +57,7 @@ Widget build(BuildContext context) {
   final shadowColor = isDarkMode ? Colors.white : Colors.black;
   final cardColor = Theme.of(context).cardColor; 
   return Card(
-    elevation: 20,
+    elevation: 10,
     shadowColor: shadowColor,
     color: cardColor,
     margin: const EdgeInsets.all(20),

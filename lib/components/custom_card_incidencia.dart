@@ -42,10 +42,19 @@ Widget build(BuildContext context) {
           children: [
             Icon(Icons.warning_amber_rounded, size: 50, color: AppColors.primaryBlue),
             SizedBox(height: 8),
-            Text(
-              "Registrar Incidencia",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                SizedBox(width: 8),
+                Text(
+                "Registrar Incidencia",
+                textAlign: TextAlign.center,
+                softWrap: true,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(width: 8),
+              ],
             ),
           ],
         ),

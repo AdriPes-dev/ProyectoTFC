@@ -22,7 +22,7 @@ Widget build(BuildContext context) {
       child: Column(
         children: [
           // Parte superior: TimeTracker
-          TimeTracker(),
+          TimeTracker(persona: persona,),
 
           const SizedBox(height: 16),
 

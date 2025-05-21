@@ -6,6 +6,7 @@ import 'package:fichi/services/auth_service.dart';
 import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PageLogin extends StatelessWidget {
   const PageLogin({super.key});
@@ -45,6 +46,8 @@ class _ContenidoPrincipalState extends State<ContenidoPrincipal> {
 
       final persona = await _authService.signInWithEmailAndPassword(email, password);
       if (persona != null) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setString('dni', persona.dni); // Guardar dni
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(

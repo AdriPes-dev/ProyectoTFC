@@ -117,14 +117,16 @@ class _TarjetaApilada extends StatelessWidget {
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final textColor = isDarkMode ? Colors.white : Colors.black;
+    final shadowColor = isDarkMode ? Colors.white : Colors.black;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
-            blurRadius: 15,
+            color:shadowColor.withValues(alpha: 0.1),
+            blurRadius: 10,
             offset: const Offset(0, 10),
           ),
         ],

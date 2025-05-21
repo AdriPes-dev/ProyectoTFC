@@ -1,4 +1,5 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/services/databasehelper.dart';
 import 'package:fichi/model_classes/fichaje.dart';
 import 'package:fichi/theme/appcolors.dart';
@@ -8,7 +9,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
 class TimeTracker extends StatefulWidget {
-  const TimeTracker({super.key});
+
+  final Persona persona;
+
+  const TimeTracker({super.key, required this.persona});
 
   @override
   State<TimeTracker> createState() => _TimeTrackerState();
@@ -36,23 +40,26 @@ class _TimeTrackerState extends State<TimeTracker> {
   });
 }
  Future<void> _guardarInicioFichaje(DateTime inicio) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('fichaje_entrada', inicio.toIso8601String());
-  }
+  final prefs = await SharedPreferences.getInstance();
+  final key = 'fichaje_entrada_${widget.persona.dni}';
+  await prefs.setString(key, inicio.toIso8601String());
+}
 
   Future<DateTime?> _obtenerInicioFichaje() async {
-    final prefs = await SharedPreferences.getInstance();
-    final entradaStr = prefs.getString('fichaje_entrada');
-    if (entradaStr != null) {
-      return DateTime.tryParse(entradaStr);
-    }
-    return null;
+  final prefs = await SharedPreferences.getInstance();
+  final key = 'fichaje_entrada_${widget.persona.dni}';
+  final entradaStr = prefs.getString(key);
+  if (entradaStr != null) {
+    return DateTime.tryParse(entradaStr);
   }
+  return null;
+}
 
-  Future<void> _limpiarInicioFichaje() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('fichaje_entrada');
-  }
+ Future<void> _limpiarInicioFichaje() async {
+  final prefs = await SharedPreferences.getInstance();
+  final key = 'fichaje_entrada_${widget.persona.dni}';
+  await prefs.remove(key);
+}
 
   Future<void> _restaurarFichaje() async {
     final entrada = await _obtenerInicioFichaje();
@@ -65,15 +72,26 @@ class _TimeTrackerState extends State<TimeTracker> {
   }
 
   void _clockIn() async {
-    final ahora = DateTime.now();
-    setState(() {
-      _startTime = ahora;
-      _endTime = null;
-      _workedDuration = null;
-      _isClockedIn = true;
-    });
-    await _guardarInicioFichaje(ahora);
+  // Validar si la persona tiene empresa asociada
+  if (widget.persona.empresaCif == null || widget.persona.empresaCif!.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('No puedes fichar si no estás vinculado a una empresa.'),
+        backgroundColor: Colors.redAccent,
+      ),
+    );
+    return;
   }
+
+  final ahora = DateTime.now();
+  setState(() {
+    _startTime = ahora;
+    _endTime = null;
+    _workedDuration = null;
+    _isClockedIn = true;
+  });
+  await _guardarInicioFichaje(ahora);
+}
 
   void _clockOut() async {
     if (_startTime != null) {
@@ -90,8 +108,8 @@ class _TimeTrackerState extends State<TimeTracker> {
 
       final fichaje = Fichaje(
         id: Uuid().v4(),
-        dniEmpleado: 'DNI123', // Sustituir con dato real
-        cifEmpresa: 'CIF456',  // Sustituir con dato real
+        dniEmpleado: widget.persona.dni,
+        cifEmpresa: widget.persona.empresaCif ?? "sin_cif",
         entrada: _startTime!,
         salida: salida,
         duracion: duracion,
@@ -115,6 +133,7 @@ class _TimeTrackerState extends State<TimeTracker> {
     final theme = Theme.of(context);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final shadowColor = isDarkMode ? Colors.white : Colors.black;
+    final textColor = isDarkMode ? Colors.white : Colors.black;
     
     return Card(
       elevation: 10,
@@ -185,8 +204,8 @@ class _TimeTrackerState extends State<TimeTracker> {
               children: [
                 Expanded(child: FilledButton.icon(
               onPressed: _isClockedIn ? null : _clockIn,
-              icon: const Icon(Icons.play_arrow , color: AppColors.gradientPurple,),
-              label: const Text('Entrada', style: TextStyle( color: AppColors.gradientPurple),),
+              icon: Icon(Icons.play_arrow , color: textColor,),
+              label: Text('Entrada', style: TextStyle( color: textColor),),
               style: FilledButton.styleFrom(
                 backgroundColor: AppColors.primaryBlue,
                 disabledBackgroundColor: Colors.grey.shade600,
@@ -201,8 +220,8 @@ class _TimeTrackerState extends State<TimeTracker> {
                 Expanded(
                   child: FilledButton.icon(
                     onPressed: _isClockedIn ? _clockOut : null,
-                    icon: const Icon(Icons.stop, color: AppColors.primaryBlue,),
-                    label: const Text('Salida', style: TextStyle( color: AppColors.primaryBlue),),
+                    icon: Icon(Icons.stop, color: textColor,),
+                    label: Text('Salida', style: TextStyle( color: textColor),),
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.gradientPurple,
                       disabledBackgroundColor: Colors.grey.shade600,
