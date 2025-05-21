@@ -281,7 +281,26 @@ Future<void> agregarUsuarioAEmpresa(String dniSolicitante, String empresaCif) as
   }
 }
 
-Future<List<Actividad>> obtenerActividadesRecientes(String empresaCif) async {
+Future<List<Actividad>> obtenerActividadesFuturas(String empresaCif) async {
+  try {
+   final snapshot = await _db
+    .collection('actividades')
+    .where('empresaCif', isEqualTo: empresaCif)
+    .where('aceptada', isEqualTo: true)
+    .where('fechaActividad', isGreaterThanOrEqualTo: DateTime.now().toIso8601String())
+    .orderBy('fechaActividad') // ascendente
+    .get();
+
+    log("Actividades futuras encontradas: ${snapshot.docs.length}");
+
+    return snapshot.docs.map((doc) => Actividad.fromFirestore(doc)).toList();
+  } catch (e) {
+    log('Error en obtenerActividadesFuturas: $e');
+    rethrow;
+  }
+}
+
+Future<List<Actividad>> obtenerActividades(String empresaCif) async {
   try {
     final snapshot = await _db
         .collection('actividades')

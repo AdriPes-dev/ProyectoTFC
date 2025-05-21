@@ -26,66 +26,100 @@ class _ActividadRecienteCardState extends State<ActividadRecienteCard> with Tick
     _cargarActividades();
   }
 
-  // En el método _cargarActividades
-Future<void> _cargarActividades() async {
-  final actividades = await _firebaseService.obtenerActividadesRecientes(widget.p.empresaCif!);
-  
-  setState(() {
-    _actividades = actividades;
-    _offsets.addAll(List.filled(_actividades.length, Offset.zero));
+  Future<void> _cargarActividades() async {
+    final actividades = await _firebaseService.obtenerActividadesFuturas(widget.p.empresaCif!);
+    
+    setState(() {
+      _actividades = actividades;
+      _offsets.addAll(List.filled(_actividades.length, Offset.zero));
 
-    _cardColors.clear();
-    for (int i = 0; i < actividades.length; i++) {
-  final t = actividades.length > 1 
-      ? i / (actividades.length - 1)
-      : 0.0;
+      _cardColors.clear();
+      for (int i = 0; i < actividades.length; i++) {
+        final t = actividades.length > 1 
+            ? i / (actividades.length - 1)
+            : 0.0;
 
-  final color = Color.lerp(
-    AppColors.primaryBlue,
-    AppColors.gradientPurple,
-    t,
-  )!.withOpacity(0.9);
+        final color = Color.lerp(
+          AppColors.primaryBlue,
+          AppColors.gradientPurple,
+          t,
+        )!.withOpacity(0.9);
 
-  _cardColors.add(color);
-}
-  });
-}
+        _cardColors.add(color);
+      }
+    });
+  }
 
-@override
-Widget build(BuildContext context) {
-  final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-  final shadowColor = isDarkMode ? Colors.white : Colors.black;
-  final cardColor = Theme.of(context).cardColor; 
-  return Card(
-    elevation: 10,
-    shadowColor: shadowColor,
-    color: cardColor,
-    margin: const EdgeInsets.all(20),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(20)),
-    child: Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Actividades',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 25),
-          VerticalStackedCards(
-            actividades: _actividades,
-            cardColors: _cardColors,
-            cardHeight: 250,
-            cardWidth: MediaQuery.of(context).size.width * 0.9,
-          ),
-        ],
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+    final shadowColor = isDarkMode ? Colors.white : Colors.black;
+    final textColor = isDarkMode ? Colors.white : Colors.black;
+    
+    return Card(
+      elevation: 10,
+      shadowColor: shadowColor,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
       ),
-    ),
-  );
-}
-
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Header
+            Row(
+              children: [
+                Icon(Icons.event, color: AppColors.primaryBlue, size: 28),
+                const SizedBox(width: 10),
+                Text(
+                  'Actividades Recientes',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            
+            // Contenedor para las tarjetas
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+              decoration: BoxDecoration(
+                color: Colors.grey.withOpacity(0.4),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  if (_actividades.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Text(
+                        'No hay actividades programadas',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: isDarkMode ? Colors.white70 : Colors.black54,
+                        ),
+                      ),
+                    )
+                  else
+                    VerticalStackedCards(
+                      actividades: _actividades,
+                      cardColors: _cardColors,
+                      cardHeight: 200,
+                      cardWidth: MediaQuery.of(context).size.width * 0.8,
+                    ),
+                  
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }

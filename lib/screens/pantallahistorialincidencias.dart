@@ -41,6 +41,9 @@ class _PantallaHistorialIncidenciasEmpresaState extends State<PantallaHistorialI
 
   @override
   Widget build(BuildContext context) {
+
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final shadowColor = isDarkMode ? Colors.white : Colors.black;
     return Scaffold(
       appBar: AppBar(title: const Text('Historial de Incidencias')),
       body: FutureBuilder<List<Map<String, dynamic>>>(
@@ -61,6 +64,8 @@ class _PantallaHistorialIncidenciasEmpresaState extends State<PantallaHistorialI
               final empleado = lista[index]['empleado'] as Persona;
 
              return Card(
+              elevation: 5,
+              shadowColor: shadowColor,
     margin: const EdgeInsets.all(8),
     child: ListTile(
       leading: CircleAvatar(

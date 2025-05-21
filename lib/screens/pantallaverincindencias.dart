@@ -45,6 +45,9 @@ class _PantallaIncidenciasEmpresaState extends State<PantallaIncidenciasEmpresa>
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final shadowColor = isDarkMode ? Colors.white : Colors.black;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Incidencias de la Empresa')),
       body: FutureBuilder<List<Map<String, dynamic>>>(
@@ -80,6 +83,8 @@ class _PantallaIncidenciasEmpresaState extends State<PantallaIncidenciasEmpresa>
     ],
   ),
   child: Card(
+    elevation: 5,
+    shadowColor: shadowColor,
     margin: const EdgeInsets.all(8),
     child: ListTile(
       leading: CircleAvatar(

@@ -150,6 +150,8 @@ class _SolicitudesEntradaScreenState extends State<SolicitudesEntradaScreen> {
   }
 
   Widget _buildTarjetaSolicitud(SolicitudIngreso solicitud) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final shadowColor = isDarkMode ? Colors.white : Colors.black;
   return Slidable(
     key: ValueKey(solicitud.id),
     closeOnScroll: true,
@@ -179,7 +181,8 @@ class _SolicitudesEntradaScreenState extends State<SolicitudesEntradaScreen> {
     ),
     child: Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      elevation: 2,
+      elevation: 5,
+      shadowColor: shadowColor,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

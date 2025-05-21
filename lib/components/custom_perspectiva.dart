@@ -43,56 +43,112 @@ class _VerticalStackedCardsState extends State<VerticalStackedCards> {
   void _addToCalendar(Actividad actividad) {
     final event = Event(
       title: actividad.titulo,
-      description: 'Añadido desde la app',
+      description: actividad.descripcion,
       startDate: actividad.fechaActividad,
       endDate: actividad.fechaActividad.add(const Duration(hours: 1)),
     );
     Add2Calendar.addEvent2Cal(event);
   }
 
+  Widget _buildIndicator(int index, bool isActive, bool isDarkMode) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      width: 8,
+      height: isActive ? 24 : 12,
+      decoration: BoxDecoration(
+        color: isActive 
+            ? (isDarkMode ? Colors.white : Colors.black)
+            : Colors.grey,
+        borderRadius: BorderRadius.circular(4),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
     return SizedBox(
       height: widget.cardHeight * 1.5,
-      child: PageView.builder(
-        controller: _pageController,
-        scrollDirection: Axis.vertical,
-        itemCount: widget.actividades.length,
-        itemBuilder: (context, index) {
-          final diferencia = index - _currentPage;
-          final valorEscala = 1 - (diferencia.abs() * 0.1);
-          final desplazamientoY = diferencia * 40;
-          final opacidad = (1 - diferencia.abs() * 0.3).clamp(0.4, 1.0);
-          final rotacionX = diferencia * 0.05;
-
-          return GestureDetector(
-            onTap: () => diferencia == 0 
-                ? _addToCalendar(widget.actividades[index])
-                : _pageController.animateToPage(
-                    index,
-                    duration: const Duration(milliseconds: 400),
-                    curve: Curves.easeOut,
-                  ),
-            child: Transform(
-              transform: Matrix4.identity()
-                ..setEntry(3, 2, _perspectiveValue)
-                ..rotateX(rotacionX)
-                ..translate(0.0, desplazamientoY)
-                ..scale(valorEscala),
-              alignment: Alignment.topCenter,
-              child: Opacity(
-                opacity: opacidad,
-                child: _TarjetaApilada(
-                  actividad: widget.actividades[index],
-                  color: widget.cardColors[index % widget.cardColors.length],
-                  height: widget.cardHeight,
-                  width: widget.cardWidth,
-                  isFront: diferencia == 0,
-                ),
-              ),
+      child: Stack(
+        children: [
+          // Indicadores izquierdos
+          Positioned(
+            left: 10,
+            top: 0,
+            bottom: 0,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(widget.actividades.length, (index) {
+                return _buildIndicator(
+                  index,
+                  index == _currentPage.round(),
+                  isDarkMode,
+                );
+              }),
             ),
-          );
-        },
+          ),
+          
+          // PageView principal
+          PageView.builder(
+            controller: _pageController,
+            scrollDirection: Axis.vertical,
+            itemCount: widget.actividades.length,
+            itemBuilder: (context, index) {
+              final diferencia = index - _currentPage;
+              final valorEscala = 1 - (diferencia.abs() * 0.1);
+              final desplazamientoY = diferencia * 40;
+              final opacidad = (1 - diferencia.abs() * 0.3).clamp(0.4, 1.0);
+              final rotacionX = diferencia * 0.05;
+
+              return GestureDetector(
+                onTap: () => diferencia == 0 
+                    ? _addToCalendar(widget.actividades[index])
+                    : _pageController.animateToPage(
+                        index,
+                        duration: const Duration(milliseconds: 400),
+                        curve: Curves.easeOut,
+                      ),
+                child: Transform(
+                  transform: Matrix4.identity()
+                    ..setEntry(3, 2, _perspectiveValue)
+                    ..rotateX(rotacionX)
+                    ..translate(0.0, desplazamientoY)
+                    ..scale(valorEscala),
+                  alignment: Alignment.topCenter,
+                  child: Opacity(
+                    opacity: opacidad,
+                    child: _TarjetaApilada(
+                      actividad: widget.actividades[index],
+                      color: widget.cardColors[index % widget.cardColors.length],
+                      height: widget.cardHeight,
+                      width: widget.cardWidth,
+                      isFront: diferencia == 0,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+          
+          // Indicadores derechos
+          Positioned(
+            right: 10,
+            top: 0,
+            bottom: 0,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(widget.actividades.length, (index) {
+                return _buildIndicator(
+                  index,
+                  index == _currentPage.round(),
+                  isDarkMode,
+                );
+              }),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -125,7 +181,7 @@ class _TarjetaApilada extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color:shadowColor.withValues(alpha: 0.1),
+            color: shadowColor.withOpacity(0.1),
             blurRadius: 10,
             offset: const Offset(0, 10),
           ),
@@ -139,7 +195,6 @@ class _TarjetaApilada extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Título
               Text(
                 actividad.titulo,
                 style: const TextStyle(
@@ -147,10 +202,7 @@ class _TarjetaApilada extends StatelessWidget {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
               const SizedBox(height: 8),
-
-              // Descripción
               Text(
                 actividad.descripcion,
                 maxLines: 3,
@@ -159,13 +211,10 @@ class _TarjetaApilada extends StatelessWidget {
                   fontSize: 14,
                 ),
               ),
-
               const Spacer(),
-
-              // Fecha y hora
               Row(
                 children: [
-                  const Icon(Icons.access_time,),
+                  const Icon(Icons.access_time),
                   const SizedBox(width: 10),
                   Text(
                     DateFormat('dd/MM/yyyy HH:mm').format(actividad.fechaActividad),
@@ -173,10 +222,7 @@ class _TarjetaApilada extends StatelessWidget {
                   ),
                 ],
               ),
-
               const SizedBox(height: 20),
-
-              // Botón para añadir al calendario
               ElevatedButton.icon(
                 icon: const Icon(Icons.calendar_today),
                 label: const Text('Añadir al calendario'),
