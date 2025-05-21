@@ -46,6 +46,8 @@ dependencies:
   cloud_firestore: ^5.6.7
   url_launcher: ^6.3.1
   flutter_slidable: ^4.0.0
+  add_2_calendar: ^3.0.1
+  percent_indicator: ^4.2.5
 
 dev_dependencies:
   flutter_test:

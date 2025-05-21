@@ -1,3 +1,4 @@
+import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/material.dart';
 import 'package:fichi/model_classes/actividad.dart';
@@ -109,7 +110,7 @@ Future<void> _cargarActividades() async {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Actividades", 
-                style: Theme.of(context).textTheme.headlineMedium),
+                style: TextStyle(fontWeight: FontWeight.bold,fontSize: 20)),
             const SizedBox(height: 20),
           LayoutBuilder(
   builder: (context, constraints) {
@@ -151,72 +152,82 @@ Future<void> _cargarActividades() async {
   );
 }
 
-  Widget _buildActivityCard(Actividad actividad, BuildContext context, {required int index}) {
+ Widget _buildActivityCard(Actividad actividad, BuildContext context, {required int index}) {
   final isDarkMode = Theme.of(context).brightness == Brightness.dark;
   final shadowColor = isDarkMode ? Colors.white : Colors.black;
-
-  // Obtener color correspondiente de la lista
   final Color cardColor = _cardColors[index % _cardColors.length];
-
   final fechaFormatted = DateFormat('dd-MM-yyyy – HH:mm').format(actividad.fechaActividad);
 
-  return Card(
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-    elevation: 5,
-    shadowColor: shadowColor,
-    child: Container(
-      width: _cardWidth,
-      height: _cardHeight * 0.6,
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          const Icon(Icons.event_note, size: 40, color: Colors.white),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  actividad.titulo,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+  // Crear el evento para añadir
+  final Event event = Event(
+    title: actividad.titulo,
+    description: 'Evento generado desde la app',
+    location: '', // Si tienes ubicación, pon aquí
+    startDate: actividad.fechaActividad,
+    endDate: actividad.fechaActividad.add(Duration(hours: 1)), // 1 hora por defecto
+  );
+
+  return GestureDetector(
+    onTap: () {
+      Add2Calendar.addEvent2Cal(event);
+    },
+    child: Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 5,
+      shadowColor: shadowColor,
+      child: Container(
+        width: _cardWidth,
+        height: _cardHeight * 0.6,
+        decoration: BoxDecoration(
+          color: cardColor,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            const Icon(Icons.event_note, size: 40, color: Colors.white),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    actividad.titulo,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.access_time, size: 16, color: Colors.white70),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          fechaFormatted,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(Icons.access_time, size: 16, color: Colors.white70),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        fechaFormatted,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.white70,
-                              fontSize: 12,
-                            ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     ),
   );
 }
-
 
   Widget _buildContainerMensaje(String mensaje) {
     return Padding(
