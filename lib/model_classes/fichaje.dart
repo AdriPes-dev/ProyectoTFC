@@ -1,37 +1,66 @@
+import 'dart:convert';
+
 class Fichaje {
-  final int? id;
-  final String nif;
-  final String empresaNombre;
-  final DateTime horaEntrada;
-  final DateTime? horaSalida; // Puede ser nulo hasta que fiche salida.
+  final String id; // UUID
+  final String dniEmpleado; // ID del usuario (de Firebase Auth por ejemplo)
+  final String cifEmpresa;
+  final DateTime entrada;
+  final DateTime salida;
+  final Duration duracion;
+  final bool sincronizado;
 
   Fichaje({
-    this.id,
-    required this.nif,
-    required this.empresaNombre,
-    required this.horaEntrada,
-    this.horaSalida,
+    required this.id,
+    required this.dniEmpleado,
+    required this.cifEmpresa,
+    required this.entrada,
+    required this.salida,
+    required this.duracion,
+    this.sincronizado = false,
   });
 
-  // Para guardar en la base de datos
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'nif': nif,
-      'empresaNombre': empresaNombre,
-      'horaEntrada': horaEntrada.toIso8601String(),
-      'horaSalida': horaSalida?.toIso8601String(),
-    };
-  }
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'dniEmpleado': dniEmpleado,
+    'cifEmpresa': cifEmpresa,
+    'entrada': entrada.toIso8601String(),
+    'salida': salida.toIso8601String(),
+    'duracion': duracion.inSeconds,
+    'sincronizado': sincronizado,
+  };
 
-  // Para leer de la base de datos
-  factory Fichaje.fromMap(Map<String, dynamic> map) {
-    return Fichaje(
-      id: map['id'],
-      nif: map['nif'],
-      empresaNombre: map['empresaNombre'],
-      horaEntrada: DateTime.parse(map['horaEntrada']),
-      horaSalida: map['horaSalida'] != null ? DateTime.parse(map['horaSalida']) : null,
-    );
-  }
+  factory Fichaje.fromJson(Map<String, dynamic> json) => Fichaje(
+    id: json['id'],
+    dniEmpleado: json['dniEmpleado'],
+    cifEmpresa: json['cifEmpresa'],
+    entrada: DateTime.parse(json['entrada']),
+    salida: DateTime.parse(json['salida']),
+    duracion: Duration(seconds: json['duracion']),
+    sincronizado: json['sincronizado'] ?? false,
+  );
+
+  Map<String, dynamic> toMap() => {
+  'id': id,
+  'dniEmpleado': dniEmpleado,
+  'cifEmpresa': cifEmpresa,
+  'entrada': entrada.toIso8601String(),
+  'salida': salida.toIso8601String(),
+  'duracion': duracion.inSeconds,
+  'sincronizado': sincronizado ? 1 : 0,
+};
+
+factory Fichaje.fromMap(Map<String, dynamic> map) => Fichaje(
+  id: map['id'],
+  dniEmpleado: map['dniEmpleado'],
+  cifEmpresa: map['cifEmpresa'],
+  entrada: DateTime.parse(map['entrada']),
+  salida: DateTime.parse(map['salida']),
+  duracion: Duration(seconds: map['duracion']),
+  sincronizado: map['sincronizado'] == 1,
+);
+
+String toJsonString() => json.encode(toJson());
+static Fichaje fromJsonString(String jsonString) =>
+    Fichaje.fromJson(json.decode(jsonString));
+
 }
