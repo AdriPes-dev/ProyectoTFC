@@ -180,7 +180,7 @@ class _TimeTrackerState extends State<TimeTracker> {
                             ? 'Salida: ${DateFormat('HH:mm:ss').format(_endTime!)}'
                             : 'Presiona Entrada para comenzar',
                     style: theme.textTheme.bodyLarge?.copyWith(
-                      color: Colors.black,
+                      color: textColor,
                     ),
                   ),
                   if (_workedDuration != null) ...[
