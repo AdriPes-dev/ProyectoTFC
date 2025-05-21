@@ -311,5 +311,18 @@ Future<List<Actividad>> obtenerActividadesRecientes(String empresaCif) async {
 
     return snapshot.docs.map((doc) => Actividad.fromFirestore(doc)).toList();
   }
+
+  Future<void> actualizarPersona(Persona persona) async {
+  try {
+    await FirebaseFirestore.instance
+        .collection('personas')
+        .doc(persona.dni)
+        .update(persona.toMap());
+    print("Persona actualizada correctamente.");
+  } catch (e) {
+    print("Error al actualizar persona: $e");
+    rethrow;
+  }
+}
 }
 

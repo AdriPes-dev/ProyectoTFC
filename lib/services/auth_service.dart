@@ -15,7 +15,9 @@ class AuthService {
     UserCredential userCredential = await _auth.signInWithEmailAndPassword(
       email: email,
       password: password,
-    );
+    ); 
+
+    userCredential.toString();
 
     final querySnapshot = await _firestore
         .collection('personas')

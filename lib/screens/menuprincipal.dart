@@ -24,19 +24,33 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
+  late Persona persona;
+
   int _paginaActual = 0;
 
-  late final List<Widget> _paginas;
+  late List<Widget> _paginas;
 
   @override
   void initState() {
     super.initState();
-    _paginas = [
-      PaginaPrincipal(persona: widget.persona),
-      PantallaPerfil(persona: widget.persona),
-      PantallaEmpresa(personaAutenticada: widget.persona),
-    ];
+     persona = widget.persona;
+    _paginas = _buildPaginas();
   }
+
+  List<Widget> _buildPaginas() {
+  return [
+    PaginaPrincipal(persona: persona),
+    PantallaPerfil(persona: persona,onPersonaActualizada: _actualizarPersona),
+    PantallaEmpresa(personaAutenticada: persona),
+  ];
+}
+
+void _actualizarPersona(Persona nueva) {
+  setState(() {
+    persona = nueva;
+    _paginas = _buildPaginas(); // vuelve a reconstruir las pantallas con datos nuevos
+  });
+}
   
   @override
   Widget build(BuildContext context) {

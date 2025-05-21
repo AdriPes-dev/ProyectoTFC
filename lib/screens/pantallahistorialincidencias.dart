@@ -42,7 +42,7 @@ class _PantallaHistorialIncidenciasEmpresaState extends State<PantallaHistorialI
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Incidencias de la Empresa')),
+      appBar: AppBar(title: const Text('Historial de Incidencias')),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _incidenciasConEmpleado,
         builder: (context, snapshot) {
@@ -50,7 +50,7 @@ class _PantallaHistorialIncidenciasEmpresaState extends State<PantallaHistorialI
             return const Center(child: CircularProgressIndicator());
           }
           if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No hay incidencias registradas.'));
+            return const Center(child: Text('No hay incidencias registradas. Todavía.'));
           }
 
           final lista = snapshot.data!;
