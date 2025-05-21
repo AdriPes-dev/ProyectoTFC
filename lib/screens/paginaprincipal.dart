@@ -53,6 +53,7 @@ Widget build(BuildContext context) {
              padding: const EdgeInsets.all(20.0),
              child: ActividadRecienteCard(p:persona),
            ),
+           const SizedBox(height: 80),
         ],
       ),
     ),

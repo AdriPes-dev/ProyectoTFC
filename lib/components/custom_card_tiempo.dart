@@ -188,7 +188,7 @@ class _TimeTrackerState extends State<TimeTracker> {
                     Text(
                       'Tiempo trabajado: ${_formatDuration(_workedDuration!)}',
                       style: theme.textTheme.bodyLarge?.copyWith(
-                        color: AppColors.textBlack,
+                        color: textColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

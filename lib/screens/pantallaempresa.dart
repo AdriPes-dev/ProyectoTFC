@@ -38,42 +38,42 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
   }
 
   Future<void> _cargarDatosEmpresa() async {
-    if (widget.personaAutenticada.empresaCif == null || widget.personaAutenticada.empresaCif!.isEmpty) {
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
-
-    try {
-      // 1. Obtener datos de la empresa
-      final empresa = await FirebaseService().obtenerEmpresaPorCif(widget.personaAutenticada.empresaCif!);
-      
-      // 2. Obtener CEO si existe
-      Persona? ceo;
-      if (empresa?.jefeDni != null) {
-        ceo = await FirebaseService().obtenerPersonaPorDni(empresa!.jefeDni!);
-      }
-      
-      // 3. Obtener empleados (excluyendo al CEO)
-      final empleados = await FirebaseService().obtenerEmpleadosPorEmpresa(empresa!.cif);
-      if (ceo != null) {
-        empleados.removeWhere((e) => e.dni == ceo!.dni);
-      }
-
-      setState(() {
-        _empresa = empresa;
-        _ceo = ceo;
-        _empleados = empleados;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Error al cargar los datos: ${e.toString()}';
-        _isLoading = false;
-      });
-    }
+  if (widget.personaAutenticada.empresaCif == null || widget.personaAutenticada.empresaCif!.isEmpty) {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = false;
+    });
+    return;
   }
+
+  try {
+    final empresa = await FirebaseService().obtenerEmpresaPorCif(widget.personaAutenticada.empresaCif!);
+
+    Persona? ceo;
+    if (empresa?.jefeDni != null) {
+      ceo = await FirebaseService().obtenerPersonaPorDni(empresa!.jefeDni!);
+    }
+
+    final empleados = await FirebaseService().obtenerEmpleadosPorEmpresa(empresa!.cif);
+    if (ceo != null) {
+      empleados.removeWhere((e) => e.dni == ceo!.dni);
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _empresa = empresa;
+      _ceo = ceo;
+      _empleados = empleados;
+      _isLoading = false;
+    });
+  } catch (e) {
+    if (!mounted) return;
+    setState(() {
+      _errorMessage = 'Error al cargar los datos: ${e.toString()}';
+      _isLoading = false;
+    });
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -109,6 +109,7 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
             // Acciones para el jefe
             if (_ceo?.dni == widget.personaAutenticada.dni) 
               _buildAccionesJefe(),
+            const SizedBox(height: 80),
           ],
         ),
       ),

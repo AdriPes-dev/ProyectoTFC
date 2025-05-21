@@ -174,10 +174,12 @@ void _verificarCambios() {
                   ),
                 ),
     ),
+    
   ),
 ),
 
               SizedBox(height: 30),
+              const SizedBox(height: 80),
         ],
       ),
     );

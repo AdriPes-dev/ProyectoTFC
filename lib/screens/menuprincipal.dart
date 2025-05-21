@@ -1,7 +1,6 @@
 
 import 'dart:developer';
 
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:fichi/main.dart';
 import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/screens/paginaprincipal.dart';
@@ -53,48 +52,106 @@ void _actualizarPersona(Persona nueva) {
 }
   
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      
-      appBar: AppBar(
-        backgroundColor: Colors.transparent, //Color.fromARGB(255, 65, 140, 198),
-        title: Text(
-          widget.title,
-          style:  Theme.of(context).textTheme.titleMedium,),
-        elevation: 0,
-        centerTitle: true,
-       leading: IconButton(
-  onPressed: () async {
-    await FirebaseAuth.instance.signOut();
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('dni');
-    log("Se ha cerrado la sesion");
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(
-        builder: (context) => MyApp(), // ← Reemplaza con el nombre real de tu pantalla de login
-      ),
-      (route) => false, // Elimina todo lo anterior en el stack de navegación
-    );
-  },
-  icon: const Icon(Icons.logout_rounded),
-),
-      ),
-      bottomNavigationBar: CurvedNavigationBar(
-        backgroundColor: Colors.transparent,
-        color: AppColors.primaryBlue,
-        buttonBackgroundColor: AppColors.primaryBlue,
-        animationDuration: Duration(milliseconds: 100),
-        items: [Icon(Icons.home), Icon(Icons.person), Icon(Icons.business)],
-        onTap: (index) {
-          setState(() {
-             _paginaActual = index;
-          });
+Widget build(BuildContext context) {
+  final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+  final iconColor = isDarkMode ? Colors.white : Colors.black;
+
+  return Scaffold(
+    appBar: AppBar(
+      backgroundColor: Colors.transparent,
+      title: Text(widget.title, style: Theme.of(context).textTheme.titleMedium),
+      elevation: 0,
+      centerTitle: true,
+      leading: IconButton(
+        onPressed: () async {
+          await FirebaseAuth.instance.signOut();
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          await prefs.remove('dni');
+          log("Se ha cerrado la sesión");
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => MyApp()),
+            (route) => false,
+          );
         },
+        icon: const Icon(Icons.logout_rounded),
       ),
-      body: _paginas[_paginaActual],
-    );
-  }
+    ),
+    body: Stack(
+  children: [
+    _paginas[_paginaActual], // contenido principal
+    Positioned(
+      left: 20,
+      right: 20,
+      bottom: 20,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        height: 60,
+        decoration: BoxDecoration(
+          color: AppColors.primaryBlue,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(3, (index) {
+            final isSelected = _paginaActual == index;
+            final icon = [Icons.home, Icons.person, Icons.business][index];
+            final label = ['Inicio', 'Perfil', 'Empresa'][index];
+
+            return Expanded(
+              child: GestureDetector(
+                onTap: () => setState(() => _paginaActual = index),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      icon,
+                      size: 22,
+                      color: isSelected ? AppColors.gradientPurple : iconColor,
+                    ),
+                    Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        Text(
+                          label,
+                          style: TextStyle(
+                            color: isSelected ? AppColors.gradientPurple : iconColor,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 150),
+                          curve: Curves.easeOut,
+                          height: 1.5,
+                          width: isSelected ? label.length * 8.0 : 0, // Ancho basado en longitud del texto
+                          margin: const EdgeInsets.only(top: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.gradientPurple,
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ),
+      ),
+    ),
+  ],
+),
+  );
+}
 }
 
 
