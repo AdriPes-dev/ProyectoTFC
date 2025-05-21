@@ -77,7 +77,7 @@ class _ActividadRecienteCardState extends State<ActividadRecienteCard> with Tick
                 Icon(Icons.event, color: AppColors.primaryBlue, size: 28),
                 const SizedBox(width: 10),
                 Text(
-                  'Actividades Recientes',
+                  'Actividades Disponibles',
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: textColor,
