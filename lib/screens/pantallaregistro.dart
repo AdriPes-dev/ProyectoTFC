@@ -164,6 +164,7 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
               ),
 
               const SizedBox(height: 20),
+              const SizedBox(height: 30),
             ],
           ),
         ),

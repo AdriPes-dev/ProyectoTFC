@@ -1,6 +1,11 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:fichi/services/databasehelper.dart';
+import 'package:fichi/model_classes/fichaje.dart';
 import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 
 class TimeTracker extends StatefulWidget {
   const TimeTracker({super.key});
@@ -15,24 +20,87 @@ class _TimeTrackerState extends State<TimeTracker> {
   Duration? _workedDuration;
   bool _isClockedIn = false;
 
-  void _clockIn() {
+  @override
+  void initState() {
+    super.initState();
+    _restaurarFichaje();
+    _listenToConnectivityChanges();
+  }
+
+  void _listenToConnectivityChanges() {
+  Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) async {
+    if (result.isNotEmpty && result.first != ConnectivityResult.none) {
+      print("Conexión recuperada, sincronizando fichajes...");
+      await DatabaseHelper.instance.sincronizarFichajesPendientes();
+    }
+  });
+}
+ Future<void> _guardarInicioFichaje(DateTime inicio) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('fichaje_entrada', inicio.toIso8601String());
+  }
+
+  Future<DateTime?> _obtenerInicioFichaje() async {
+    final prefs = await SharedPreferences.getInstance();
+    final entradaStr = prefs.getString('fichaje_entrada');
+    if (entradaStr != null) {
+      return DateTime.tryParse(entradaStr);
+    }
+    return null;
+  }
+
+  Future<void> _limpiarInicioFichaje() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('fichaje_entrada');
+  }
+
+  Future<void> _restaurarFichaje() async {
+    final entrada = await _obtenerInicioFichaje();
+    if (entrada != null) {
+      setState(() {
+        _startTime = entrada;
+        _isClockedIn = true;
+      });
+    }
+  }
+
+  void _clockIn() async {
+    final ahora = DateTime.now();
     setState(() {
-      _startTime = DateTime.now();
+      _startTime = ahora;
       _endTime = null;
       _workedDuration = null;
       _isClockedIn = true;
     });
+    await _guardarInicioFichaje(ahora);
   }
 
-  void _clockOut() {
+  void _clockOut() async {
     if (_startTime != null) {
+      final salida = DateTime.now();
+      final duracion = salida.difference(_startTime!);
+
       setState(() {
-        _endTime = DateTime.now();
-        _workedDuration = _endTime!.difference(_startTime!);
+        _endTime = salida;
+        _workedDuration = duracion;
         _isClockedIn = false;
       });
+
+      await _limpiarInicioFichaje();
+
+      final fichaje = Fichaje(
+        id: Uuid().v4(),
+        dniEmpleado: 'DNI123', // Sustituir con dato real
+        cifEmpresa: 'CIF456',  // Sustituir con dato real
+        entrada: _startTime!,
+        salida: salida,
+        duracion: duracion,
+      );
+
+      await DatabaseHelper.instance.guardarFichaje(fichaje);
     }
   }
+
 
   String _formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, '0');
@@ -81,7 +149,7 @@ class _TimeTrackerState extends State<TimeTracker> {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.2),
+                color: Colors.grey.withOpacity(0.4),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Column(
