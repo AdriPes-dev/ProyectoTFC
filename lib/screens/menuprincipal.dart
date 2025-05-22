@@ -202,7 +202,7 @@ class _LogoutHoldButtonState extends State<_LogoutHoldButton>
       duration: const Duration(milliseconds: 50), // duración del progreso
     );
 
-    _scaleAnimation = Tween<double>(begin: 0, end: 0.5).animate(_controller);
+    _scaleAnimation = Tween<double>(begin: 1, end: 1.2).animate(_controller);
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
