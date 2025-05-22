@@ -3,6 +3,7 @@ import 'package:fichi/screens/pantallaeditarempresa.dart';
 import 'package:fichi/screens/pantallahistorialactividades.dart';
 import 'package:fichi/screens/pantallahistorialincidencias.dart';
 import 'package:fichi/screens/pantallaveractividadespendientes.dart';
+import 'package:fichi/screens/pantallaverestadisticasjefe.dart';
 import 'package:fichi/screens/pantallaverincindencias.dart';
 import 'package:fichi/screens/pantallaversolicitudesunion.dart';
 import 'package:fichi/services/consultas_firebase.dart';
@@ -102,10 +103,189 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
   }
 }
 
+Widget _buildSkeletonLoading() {
+  final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+  final baseColor = isDarkMode ? Colors.grey[800]! : Colors.grey[300]!;
+  
+  return SingleChildScrollView(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Skeleton para el encabezado de la empresa
+        Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: Colors.blue,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 200,
+                  height: 32,
+                  color: baseColor,
+                ),
+                const SizedBox(height: 20),
+                ...List.generate(5, (index) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 60,
+                        height: 16,
+                        color: baseColor,
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        width: 150,
+                        height: 16,
+                        color: baseColor,
+                      ),
+                    ],
+                  ),
+                )),
+              ],
+            ),
+          ),
+        ),
+        
+        // Skeleton para la sección del CEO
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+              child: Container(
+                width: 120,
+                height: 24,
+                color: baseColor,
+              ),
+            ),
+            _buildSkeletonPersona(),
+          ],
+        ),
+        
+        // Skeleton para la lista de empleados
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
+              child: Row(
+                children: [
+                  Container(
+                    width: 80,
+                    height: 24,
+                    color: baseColor,
+                  ),
+                  const SizedBox(width: 10),
+                  Container(
+                    width: 100,
+                    height: 24,
+                    color: baseColor,
+                  ),
+                ],
+              ),
+            ),
+            ...List.generate(3, (index) => _buildSkeletonPersona()),
+          ],
+        ),
+        
+        // Skeleton para las acciones del jefe
+        Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 1,
+                color: Colors.grey[300],
+              ),
+              const SizedBox(height: 20),
+              Container(
+                width: 200,
+                height: 20,
+                color: baseColor,
+              ),
+              const SizedBox(height: 20),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: List.generate(5, (index) => Container(
+                  width: 120,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: baseColor,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                )),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildSkeletonPersona() {
+  final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+  final baseColor = isDarkMode ? Colors.grey[800]! : Colors.grey[300]!;
+  
+  return Container(
+    margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+    decoration: BoxDecoration(
+      color: isDarkMode ? Colors.black : Colors.white,
+      borderRadius: BorderRadius.circular(12),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.2),
+          spreadRadius: 1,
+          blurRadius: 5,
+          offset: const Offset(0, 2),
+        ),
+      ],
+    ),
+    child: ListTile(
+      leading: CircleAvatar(backgroundColor: baseColor),
+      title: Container(
+        width: 120,
+        height: 16,
+        color: baseColor,
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 4),
+          Container(
+            width: 180,
+            height: 14,
+            color: baseColor,
+          ),
+          const SizedBox(height: 4),
+          Container(
+            width: 100,
+            height: 12,
+            color: baseColor,
+          ),
+        ],
+      ),
+      trailing: Container(
+        width: 24,
+        height: 24,
+        color: baseColor,
+      ),
+    ),
+  );
+}
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
+       return _buildSkeletonLoading();
     }
 
     if (_errorMessage != null) {
@@ -428,18 +608,12 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
     ),
   );
 
-  // Verificar si recibimos una persona actualizada
   if (personaActualizada != null && personaActualizada is Persona) {
-    // Actualizar el estado local
     setState(() {
       _personaAutenticada = personaActualizada;
     });
-    
-    // Notificar al padre mediante el callback
     widget.onPersonaActualizada(personaActualizada);
   }
-
-  // Recargar datos de la empresa
   await _cargarDatosEmpresa();
 }
 
@@ -462,6 +636,12 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
   }
 
   void _verEstadisticas() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PantallaEstadisticasEmpleados(ceo: _ceo!, empleados: _empleados),
+      ),
+    );
   }
 
   Widget _buildVistaSinEmpresa() {

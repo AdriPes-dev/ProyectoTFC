@@ -21,35 +21,54 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
   late Persona persona;
-
   int _paginaActual = 0;
-
   late List<Widget> _paginas;
+  late PageController _pageController;  // <-- Añadido
 
   @override
   void initState() {
     super.initState();
-     persona = widget.persona;
+    persona = widget.persona;
     _paginas = _buildPaginas();
+    _pageController = PageController(initialPage: _paginaActual); // Inicializamos controlador
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();  // Liberamos controlador
+    super.dispose();
   }
 
   List<Widget> _buildPaginas() {
-  return [
-    PaginaPrincipal(persona: persona),
-    PantallaPerfil(persona: persona,onPersonaActualizada: _actualizarPersona),
-    PantallaEmpresa(personaAutenticada: persona, onPersonaActualizada: _actualizarPersona,),
-  ];
-}
+    return [
+      PaginaPrincipal(persona: persona),
+      PantallaPerfil(persona: persona, onPersonaActualizada: _actualizarPersona),
+      PantallaEmpresa(personaAutenticada: persona, onPersonaActualizada: _actualizarPersona),
+    ];
+  }
 
-void _actualizarPersona(Persona nueva) {
-  setState(() {
-    persona = nueva;
-    _paginas = _buildPaginas(); // vuelve a reconstruir las pantallas con datos nuevos
-  });
-}
-  
+  void _actualizarPersona(Persona nueva) {
+    setState(() {
+      persona = nueva;
+      _paginas = _buildPaginas();
+    });
+  }
+
+  void _onPageChanged(int index) {
+    setState(() {
+      _paginaActual = index;
+    });
+  }
+
+  void _onItemTapped(int index) {
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
   @override
 Widget build(BuildContext context) {
   final isDarkMode = Theme.of(context).brightness == Brightness.dark;
@@ -57,97 +76,102 @@ Widget build(BuildContext context) {
 
   return Scaffold(
     appBar: AppBar(
-  backgroundColor: Colors.transparent,
-  title: Text(widget.title, 
-    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-      fontSize: 18, // Tamaño reducido para más espacio
+      backgroundColor: Colors.transparent,
+      title: Text(widget.title,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          fontSize: 18,
+        ),
+      ),
+      elevation: 0,
+      centerTitle: true,
+      leading: Padding(
+        padding: const EdgeInsets.only(left: 8.0),
+        child: _LogoutHoldButton(),
+      ),
+      leadingWidth: 56,
     ),
-  ),
-  elevation: 0,
-  centerTitle: true,
-  leading: Padding(
-    padding: const EdgeInsets.only(left: 8.0),
-    child: _LogoutHoldButton(),
-  ),
-  leadingWidth: 56, // Ancho fijo para el área leading
-),
     body: Stack(
-  children: [
-    _paginas[_paginaActual], // contenido principal
-    Positioned(
-      left: 20,
-      right: 20,
-      bottom: 20,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        height: 60,
-        decoration: BoxDecoration(
-          color: AppColors.primaryBlue,
-          borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
+      children: [
+        PageView(
+          controller: _pageController,
+          onPageChanged: _onPageChanged,
+          children: _paginas,
+          physics: const BouncingScrollPhysics(),
+        ),
+        Positioned(
+          left: 20,
+          right: 20,
+          bottom: 20,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            height: 60,
+            decoration: BoxDecoration(
+              color: AppColors.primaryBlue, // fondo azul
+              borderRadius: BorderRadius.circular(30),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 20,
+                  offset: const Offset(0, 10),
+                ),
+              ],
             ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(3, (index) {
-            final isSelected = _paginaActual == index;
-            final icon = [Icons.home, Icons.person, Icons.business][index];
-            final label = ['Inicio', 'Perfil', 'Empresa'][index];
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: List.generate(3, (index) {
+                final isSelected = _paginaActual == index;
+                final icon = [Icons.home, Icons.person, Icons.business][index];
+                final label = ['Inicio', 'Perfil', 'Empresa'][index];
 
-            return Expanded(
-  child: GestureDetector(
-    behavior: HitTestBehavior.translucent, // Asegura que el área ampliada sea clickeable
-    onTap: () => setState(() => _paginaActual = index),
-    child: Container(
-      padding: const EdgeInsets.symmetric(vertical: 10), // Más espacio vertical
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            icon,
-            size: 22,
-            color: isSelected ? AppColors.gradientPurple : iconColor,
+                return Expanded(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTap: () => _onItemTapped(index),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            icon,
+                            size: 22,
+                            color: isSelected ? AppColors.gradientPurple : iconColor,
+                          ),
+                          Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              Text(
+                                label,
+                                style: TextStyle(
+                                  color: isSelected ? AppColors.gradientPurple : iconColor,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              AnimatedContainer(
+                                duration: const Duration(milliseconds: 150),
+                                curve: Curves.easeOut,
+                                height: 1.5,
+                                width: isSelected ? label.length * 8.0 : 0,
+                                margin: const EdgeInsets.only(top: 2),
+                                decoration: BoxDecoration(
+                                  color: AppColors.gradientPurple,
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ),
           ),
-          Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  color: isSelected ? AppColors.gradientPurple : iconColor,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 150),
-                curve: Curves.easeOut,
-                height: 1.5,
-                width: isSelected ? label.length * 8.0 : 0,
-                margin: const EdgeInsets.only(top: 2),
-                decoration: BoxDecoration(
-                  color: AppColors.gradientPurple,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  ),
-);
-          }),
         ),
-      ),
+      ],
     ),
-  ],
-),
   );
 }
 }
@@ -175,10 +199,10 @@ class _LogoutHoldButtonState extends State<_LogoutHoldButton>
 
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(seconds: 1), // duración del progreso
+      duration: const Duration(milliseconds: 50), // duración del progreso
     );
 
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(_controller);
+    _scaleAnimation = Tween<double>(begin: 0, end: 0.5).animate(_controller);
 
     _controller.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
@@ -200,7 +224,7 @@ class _LogoutHoldButtonState extends State<_LogoutHoldButton>
 
     _colorAnimation = ColorTween(
       begin: Theme.of(context).iconTheme.color,
-      end: Colors.red,
+      end: AppColors.gradientPurple,
     ).animate(_controller);
   }
 
@@ -231,7 +255,6 @@ class _LogoutHoldButtonState extends State<_LogoutHoldButton>
         (route) => false,
       );
     } else {
-      // Si no se completó el progreso, reversa la animación y no cierra sesión
       await _controller.reverse();
       setState(() {
         _isPressed = false;

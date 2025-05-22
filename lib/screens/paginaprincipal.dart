@@ -31,7 +31,7 @@ Widget build(BuildContext context) {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Bloque izquierdo - Incidencia
-                WidgetIncidencia(p: persona), // ¡Sin Expanded aquí!
+                WidgetIncidencia(p: persona),
 
                 const SizedBox(width: 16),
 
@@ -42,7 +42,7 @@ Widget build(BuildContext context) {
                     children: [
                       RegistrarActividad(p: persona),
                       const SizedBox(height: 16),
-                      CartelEstadisticas(),
+                      CartelEstadisticas(dniEmpleado: persona.dni,),
                     ],
                   ),
                 ),

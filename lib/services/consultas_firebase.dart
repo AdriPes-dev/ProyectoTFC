@@ -386,5 +386,110 @@ Future<void> eliminarEmpresa(String cifEmpresa) async {
   await firestore.collection('empresas').doc(cifEmpresa).delete();
 }
 
+ Future<Map<String, dynamic>> obtenerEstadisticasFichajes(String dniEmpleado) async {
+    try {
+      final snapshot = await _db
+          .collection('fichajes')
+          .where('dniEmpleado', isEqualTo: dniEmpleado)
+          .get();
+
+      if (snapshot.docs.isEmpty) {
+        return {
+          'totalHoras': 0.0,
+          'diasTrabajados': 0,
+          'incidencias': 0,
+        };
+      }
+
+      double totalSegundos = 0;
+      final diasSet = <String>{};
+
+      for (var doc in snapshot.docs) {
+        final data = doc.data();
+        final duracion = (data['duracion'] ?? 0).toDouble();
+        totalSegundos += duracion;
+
+        final entrada = DateTime.tryParse(data['entrada'] ?? '');
+        if (entrada != null) {
+          diasSet.add("${entrada.year}-${entrada.month.toString().padLeft(2, '0')}-${entrada.day.toString().padLeft(2, '0')}");
+        }
+      }
+
+      final totalHoras = totalSegundos / 3600;
+
+      return {
+        'totalHoras': totalHoras,
+        'diasTrabajados': diasSet.length,
+        'incidencias': 0, // implementar si necesario
+      };
+    } catch (e) {
+      print("Error al obtener estadísticas: $e");
+      return {
+        'totalHoras': 0.0,
+        'diasTrabajados': 0,
+        'incidencias': 0,
+      };
+    }
+  }
+  Future<Map<String, dynamic>> obtenerEstadisticasFichajesUltimaSemana(String dniEmpleado) async {
+  try {
+    final ahora = DateTime.now();
+    final inicioSemana = ahora.subtract(Duration(days: ahora.weekday - 1));
+    final finSemana = inicioSemana.add(const Duration(days: 7));
+
+    final fichajesSnapshot = await _db
+        .collection('fichajes')
+        .where('dniEmpleado', isEqualTo: dniEmpleado)
+        .get();
+
+    final fichajes = fichajesSnapshot.docs
+        .map((doc) => doc.data())
+        .where((data) {
+          final entrada = DateTime.tryParse(data['entrada']);
+          return entrada != null && entrada.isAfter(inicioSemana) && entrada.isBefore(finSemana);
+        })
+        .toList();
+
+    final diasTrabajadosSet = <int>{};
+    double totalHoras = 0;
+
+    for (final fichaje in fichajes) {
+      final entrada = DateTime.parse(fichaje['entrada']);
+      final duracion = fichaje['duracion']; // en segundos
+      totalHoras += duracion / 3600.0;
+      diasTrabajadosSet.add(entrada.weekday); // lunes=1, ..., domingo=7
+    }
+
+    // Obtener incidencias también
+    final incidenciasSnapshot = await _db
+        .collection('incidencias')
+        .where('dniEmpleado', isEqualTo: dniEmpleado)
+        .get();
+
+    final incidencias = incidenciasSnapshot.docs
+        .map((doc) => doc.data())
+        .where((data) {
+          final fecha = DateTime.tryParse(data['fechaReporte']);
+          return fecha != null && fecha.isAfter(inicioSemana) && fecha.isBefore(finSemana);
+        })
+        .toList();
+
+    // Generar lista de días trabajados: lunes (0) a domingo (6)
+    final diasBool = List<bool>.filled(7, false);
+    for (var dia in diasTrabajadosSet) {
+      if (dia >= 1 && dia <= 7) diasBool[dia - 1] = true;
+    }
+
+    return {
+      'totalHoras': totalHoras,
+      'diasTrabajados': diasTrabajadosSet.length,
+      'dias': diasBool,
+      'incidencias': incidencias.length,
+    };
+  } catch (e) {
+    log('Error al obtener estadísticas semanales: $e');
+    rethrow;
+  }
+}
 }
 

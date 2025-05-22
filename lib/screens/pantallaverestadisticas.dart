@@ -1,17 +1,22 @@
-import 'package:fichi/theme/appcolors.dart';
+import 'package:fichi/components/estado_circular.dart';
 import 'package:flutter/material.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 
 class EstadisticasSemanalesScreen extends StatefulWidget {
   final int diasTrabajados;
   final int totalDias;
-  final List<bool> dias; // true = trabajado, false = no trabajado
+  final List<bool> dias;
+  final double horasTrabajadas;
+  final double horasTotales;
+  final int numeroIncidencias;
 
   const EstadisticasSemanalesScreen({
     super.key,
     required this.diasTrabajados,
     required this.totalDias,
     required this.dias,
+    required this.horasTrabajadas,
+    required this.horasTotales,
+    required this.numeroIncidencias,
   });
 
   @override
@@ -19,32 +24,6 @@ class EstadisticasSemanalesScreen extends StatefulWidget {
 }
 
 class _EstadisticasSemanalesScreenState extends State<EstadisticasSemanalesScreen> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-
-    final porcentaje = widget.diasTrabajados / widget.totalDias;
-
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    );
-
-    _animation = Tween<double>(begin: 0, end: porcentaje).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
-
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   Widget _buildDiasTrabajadosRow() {
   const diasSemana = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
@@ -74,32 +53,29 @@ class _EstadisticasSemanalesScreenState extends State<EstadisticasSemanalesScree
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Estadísticas Semanales")),
+      appBar: AppBar(title: const Text("Estadísticas")),
       body: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AnimatedBuilder(
-              animation: _animation,
-              builder: (context, child) {
-                return CircularPercentIndicator(
-                  radius: 100.0,
-                  lineWidth: 12.0,
-                  percent: _animation.value.clamp(0.0, 1.0),
-                  center: Text(
-                    "${widget.diasTrabajados}/${widget.totalDias}",
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  progressColor: AppColors.primaryBlue,
-                  backgroundColor: AppColors.primaryBlue.withOpacity(0.2),
-                  circularStrokeCap: CircularStrokeCap.round,
-                );
-              },
+            SizedBox(height: 20),
+            Text("Estadísticas de esta semana",style: TextStyle(fontSize:20,fontWeight: FontWeight.bold),),
+            SizedBox(height: 60),
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text("Horas trabajadas", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 15),
+                EstadoCircularHoras(horasTrabajadas: widget.horasTrabajadas,horasTotales: widget.horasTotales,),
+                const SizedBox(height: 10),
+                const Text("Días trabajados", style: TextStyle(fontSize: 18)),
+                const SizedBox(height: 8),
+                _buildDiasTrabajadosRow(),
+                const SizedBox(height: 40),
+                    const Text("Incidencias que has registrado", style: TextStyle(fontSize: 18)),
+
+                EstadoCircularIncidencias(incidencias: widget.numeroIncidencias),
+              ],
             ),
-            const SizedBox(height: 32),
-            const Text("Días trabajados", style: TextStyle(fontSize: 18)),
-            const SizedBox(height: 8),
-            _buildDiasTrabajadosRow(),
           ],
         ),
       ),
