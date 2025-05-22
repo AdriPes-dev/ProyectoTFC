@@ -291,8 +291,6 @@ Future<List<Actividad>> obtenerActividadesFuturas(String empresaCif) async {
     .orderBy('fechaActividad') // ascendente
     .get();
 
-    log("Actividades futuras encontradas: ${snapshot.docs.length}");
-
     return snapshot.docs.map((doc) => Actividad.fromFirestore(doc)).toList();
   } catch (e) {
     log('Error en obtenerActividadesFuturas: $e');
@@ -305,7 +303,8 @@ Future<List<Actividad>> obtenerActividades(String empresaCif) async {
     final snapshot = await _db
         .collection('actividades')
         .where('empresaCif', isEqualTo: empresaCif)
-        .where('aceptada', isEqualTo: true)
+        .where('aceptada', isEqualTo:false)
+        .where('fechaActividad', isGreaterThanOrEqualTo: DateTime.now().toIso8601String())
         .orderBy('fechaActividad', descending: true)
         .get();
 
@@ -320,16 +319,22 @@ Future<List<Actividad>> obtenerActividades(String empresaCif) async {
 
 
 
-   Future<List<Actividad>> obtenerActividadesPendientes(String empresaCif) async {
+   Future<List<Actividad>> obtenerHistorialActividades(String empresaCif) async {
+  try {
     final snapshot = await _db
         .collection('actividades')
         .where('empresaCif', isEqualTo: empresaCif)
-        .where('aceptada', isEqualTo: false)
+        .where('aceptada', isEqualTo: true)
+        .where('fechaActividad', isLessThan: DateTime.now().toIso8601String())
         .orderBy('fechaActividad', descending: true)
         .get();
 
     return snapshot.docs.map((doc) => Actividad.fromFirestore(doc)).toList();
+  } catch (e) {
+    log('Error al obtener el historial: $e');
+    rethrow;
   }
+}
 
   Future<void> actualizarPersona(Persona persona) async {
   try {
@@ -343,5 +348,43 @@ Future<List<Actividad>> obtenerActividades(String empresaCif) async {
     rethrow;
   }
 }
+
+  Future<void> actualizarEstadoActividad(String id, bool aceptada) async {
+  final Map<String, dynamic> data = {
+    'aceptada': aceptada,
+  };
+
+  if (!aceptada) {
+    data['fechaActividad'] = DateTime(2000, 1, 1).toIso8601String();
+  }
+
+  await _db.collection('actividades').doc(id).update(data);
+}
+Future<void> actualizarEmpresa(Empresa empresa) async {
+  final docRef = FirebaseFirestore.instance.collection('empresas').doc(empresa.cif);
+  await docRef.set(empresa.toMap());
+}
+
+Future<void> eliminarEmpresa(String cifEmpresa) async {
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  // 1. Obtener todos los empleados que pertenecen a la empresa
+  final empleadosSnapshot = await firestore
+      .collection('personas')
+      .where('empresaCif', isEqualTo: cifEmpresa)
+      .get();
+
+  // 2. Actualizar el campo empresaCif a null en cada uno
+  for (var doc in empleadosSnapshot.docs) {
+    await firestore.collection('personas').doc(doc.id).update({
+      'empresaCif': null,
+      'esJefe' : false,
+    });
+  }
+
+  // 3. Eliminar la empresa
+  await firestore.collection('empresas').doc(cifEmpresa).delete();
+}
+
 }
 

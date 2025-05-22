@@ -43,71 +43,81 @@ class _PantallaIncidenciasEmpresaState extends State<PantallaIncidenciasEmpresa>
     return resultado;
   }
 
-  @override
+  Future<void> recargarIncidencias() async {
+    setState(() {
+      _incidenciasConEmpleado = cargarIncidenciasConEmpleados();
+    });
+  }
+
+    @override
   Widget build(BuildContext context) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final shadowColor = isDarkMode ? Colors.white : Colors.black;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Incidencias de la Empresa')),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _incidenciasConEmpleado,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No hay incidencias registradas.'));
-          }
-
-          final lista = snapshot.data!;
-          return ListView.builder(
-            itemCount: lista.length,
-            itemBuilder: (context, index) {
-              final incidencia = lista[index]['incidencia'] as Incidencia;
-              final empleado = lista[index]['empleado'] as Persona;
-
-             return Slidable(
-  key: ValueKey(incidencia.id), // Usa un identificador único
-  startActionPane: ActionPane(
-    extentRatio: 0.25,
-    motion: const DrawerMotion(),
-    children: [
-      SlidableAction(
-        onPressed: (_) => _marcarComoLeida(incidencia), // Método que tú defines
-        backgroundColor: Colors.green,
-        foregroundColor: Colors.white,
-        icon: Icons.check_circle,
-        label: 'Leída',
+      appBar: AppBar(
+        title: const Text('Incidencias de la Empresa'),
       ),
-    ],
-  ),
-  child: Card(
-    elevation: 5,
-    shadowColor: shadowColor,
-    margin: const EdgeInsets.all(8),
-    child: ListTile(
-      leading: CircleAvatar(
-        backgroundColor: Colors.blue.shade100,
-        child: Text(empleado.nombre[0].toUpperCase()),
-      ),
-      title: Text(incidencia.titulo),
-      subtitle: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Empleado: ${empleado.nombreCompleto}'),
-          Text('Descripción: ${incidencia.descripcion}'),
-          Text('Estado: ${incidencia.estado}'),
-          Text('Fecha: ${incidencia.fechaReporte.toLocal().toString().substring(0, 16)}'),
-        ],
-      ),
-    ),
-  ),
-);
+      body: RefreshIndicator(
+        onRefresh: recargarIncidencias,
+        child: FutureBuilder<List<Map<String, dynamic>>>(
+          future: _incidenciasConEmpleado,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text('No hay incidencias registradas.'));
+            }
 
-            },
-          );
-        },
+            final lista = snapshot.data!;
+            return ListView.builder(
+              itemCount: lista.length,
+              itemBuilder: (context, index) {
+                final incidencia = lista[index]['incidencia'] as Incidencia;
+                final empleado = lista[index]['empleado'] as Persona;
+
+                return Slidable(
+                  key: ValueKey(incidencia.id),
+                  startActionPane: ActionPane(
+                    extentRatio: 0.25,
+                    motion: const DrawerMotion(),
+                    children: [
+                      SlidableAction(
+                        onPressed: (_) => _marcarComoLeida(incidencia),
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        icon: Icons.check_circle,
+                        label: 'Leída',
+                      ),
+                    ],
+                  ),
+                  child: Card(
+                    elevation: 5,
+                    shadowColor: shadowColor,
+                    margin: const EdgeInsets.all(8),
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.blue.shade100,
+                        child: Text(empleado.nombre[0].toUpperCase()),
+                      ),
+                      title: Text(incidencia.titulo),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Empleado: ${empleado.nombreCompleto}'),
+                          Text('Descripción: ${incidencia.descripcion}'),
+                          Text('Estado: ${incidencia.estado}'),
+                          Text('Fecha: ${incidencia.fechaReporte.toLocal().toString().substring(0, 16)}'),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }

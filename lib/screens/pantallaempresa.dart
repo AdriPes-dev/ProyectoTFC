@@ -1,8 +1,12 @@
 import 'package:fichi/model_classes/empresa.dart';
+import 'package:fichi/screens/pantallaeditarempresa.dart';
+import 'package:fichi/screens/pantallahistorialactividades.dart';
 import 'package:fichi/screens/pantallahistorialincidencias.dart';
+import 'package:fichi/screens/pantallaveractividadespendientes.dart';
 import 'package:fichi/screens/pantallaverincindencias.dart';
 import 'package:fichi/screens/pantallaversolicitudesunion.dart';
 import 'package:fichi/services/consultas_firebase.dart';
+import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/material.dart';
 import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/screens/crearempresa.dart';
@@ -11,11 +15,13 @@ import 'package:url_launcher/url_launcher.dart';
 
 class PantallaEmpresa extends StatefulWidget {
   final Persona personaAutenticada;
+  final void Function(Persona) onPersonaActualizada;
   
 
   const PantallaEmpresa({
     super.key,
     required this.personaAutenticada,
+    required this.onPersonaActualizada,
   });
 
   @override
@@ -37,10 +43,19 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
   _cargarDatosEmpresa();
   }
 
+  void onEmpresaActualizada(Empresa empresaActualizada) {
+  setState(() {
+    _empresa = empresaActualizada;
+  });
+}
+
   Future<void> _cargarDatosEmpresa() async {
   if (widget.personaAutenticada.empresaCif == null || widget.personaAutenticada.empresaCif!.isEmpty) {
     if (!mounted) return;
     setState(() {
+      _empresa = null;
+      _ceo = null;
+      _empleados = [];
       _isLoading = false;
     });
     return;
@@ -49,12 +64,24 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
   try {
     final empresa = await FirebaseService().obtenerEmpresaPorCif(widget.personaAutenticada.empresaCif!);
 
-    Persona? ceo;
-    if (empresa?.jefeDni != null) {
-      ceo = await FirebaseService().obtenerPersonaPorDni(empresa!.jefeDni!);
+    if (empresa == null) {
+      if (!mounted) return;
+      setState(() {
+        _empresa = null;
+        _ceo = null;
+        _empleados = [];
+        _isLoading = false;
+      });
+      return;
     }
 
-    final empleados = await FirebaseService().obtenerEmpleadosPorEmpresa(empresa!.cif);
+    Persona? ceo;
+    if (empresa.jefeDni != null && empresa.jefeDni!.isNotEmpty) {
+      ceo = await FirebaseService().obtenerPersonaPorDni(empresa.jefeDni!);
+    }
+
+    final empleados = await FirebaseService().obtenerEmpleadosPorEmpresa(empresa.cif);
+
     if (ceo != null) {
       empleados.removeWhere((e) => e.dni == ceo!.dni);
     }
@@ -195,6 +222,8 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
   }
 
   Widget _buildListaEmpleados() {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -212,7 +241,7 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
               const SizedBox(width: 10),
               Chip(
                 label: Text('${_empleados.length} miembros'),
-                backgroundColor: Colors.blue.shade100,
+                backgroundColor: isDarkMode ? AppColors.primaryBlue : Colors.blue.shade100,
               ),
             ],
           ),
@@ -341,6 +370,22 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
                 label: const Text('Historial Incidencias'),
                 onPressed: _verHistorialIncidencias,
               ),
+
+              ActionChip(
+                avatar: const Icon(Icons.calendar_month, size: 18),
+                label: const Text('Aceptar Actividades'),
+                onPressed: _aceptarActividad,
+              ),
+              ActionChip(
+                avatar: const Icon(Icons.stacked_line_chart_rounded, size: 18),
+                label: const Text('Estadísticas'),
+                onPressed: _verEstadisticas
+              ),
+              ActionChip(
+                avatar: const Icon(Icons.history_toggle_off_outlined, size: 18),
+                label: const Text('Historial Actividades'),
+                onPressed: _historialActividades
+              ),
             ],
           ),
         ],
@@ -375,8 +420,48 @@ class _PantallaEmpresaState extends State<PantallaEmpresa> {
     );
   }
 
-  void _configurarEmpresa() {
-    // Implementar lógica para configurar empresa
+  void _configurarEmpresa() async {
+  final personaActualizada = await Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => PantallaEditarEmpresa(empresa: _empresa!),
+    ),
+  );
+
+  // Verificar si recibimos una persona actualizada
+  if (personaActualizada != null && personaActualizada is Persona) {
+    // Actualizar el estado local
+    setState(() {
+      _personaAutenticada = personaActualizada;
+    });
+    
+    // Notificar al padre mediante el callback
+    widget.onPersonaActualizada(personaActualizada);
+  }
+
+  // Recargar datos de la empresa
+  await _cargarDatosEmpresa();
+}
+
+  void _aceptarActividad() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PantallaActividadesPendientes(empresa: _empresa!),
+      ),
+    );
+  }
+
+  void _historialActividades(){
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PantallaHistorialActividades(empresa: _empresa!),
+      ),
+    );
+  }
+
+  void _verEstadisticas() {
   }
 
   Widget _buildVistaSinEmpresa() {

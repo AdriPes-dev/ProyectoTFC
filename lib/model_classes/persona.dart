@@ -17,6 +17,21 @@ class Persona {
     this.empresaCif,
   });
 
+  Persona copyWith({
+    String? empresaCif,
+    bool? esJefe,
+  }) {
+    return Persona(
+      dni: dni,
+      nombre: nombre,
+      apellidos: apellidos,
+      correo: correo,
+      telefono: telefono,
+      empresaCif: empresaCif ?? this.empresaCif,
+      esJefe: esJefe ?? this.esJefe,
+    );
+  }
+
   factory Persona.fromMap(Map<String, dynamic> map) {
     return Persona(
       dni: map['dni'] ?? '',

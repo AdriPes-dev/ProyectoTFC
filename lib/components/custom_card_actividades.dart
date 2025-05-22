@@ -19,6 +19,8 @@ class _ActividadRecienteCardState extends State<ActividadRecienteCard> with Tick
   List<Actividad> _actividades = [];
   final List<Offset> _offsets = [];
   final List<Color> _cardColors = [];
+  
+  bool _sinEmpresa = false; // <-- Añadido
 
   @override
   void initState() {
@@ -27,24 +29,34 @@ class _ActividadRecienteCardState extends State<ActividadRecienteCard> with Tick
   }
 
   Future<void> _cargarActividades() async {
-    final actividades = await _firebaseService.obtenerActividadesFuturas(widget.p.empresaCif!);
-    
+    final empresaCif = widget.p.empresaCif;
+
+    if (empresaCif == null) {
+      setState(() {
+        _sinEmpresa = true; // Indicamos que no hay empresa
+        _actividades = [];
+        _offsets.clear();
+        _cardColors.clear();
+      });
+      return;
+    }
+
+    final actividades = await _firebaseService.obtenerActividadesFuturas(empresaCif);
+
     setState(() {
+      _sinEmpresa = false; // Hay empresa
       _actividades = actividades;
+      _offsets.clear();
       _offsets.addAll(List.filled(_actividades.length, Offset.zero));
 
       _cardColors.clear();
       for (int i = 0; i < actividades.length; i++) {
-        final t = actividades.length > 1 
-            ? i / (actividades.length - 1)
-            : 0.0;
-
+        final t = actividades.length > 1 ? i / (actividades.length - 1) : 0.0;
         final color = Color.lerp(
           AppColors.primaryBlue,
           AppColors.gradientPurple,
           t,
         )!.withOpacity(0.9);
-
         _cardColors.add(color);
       }
     });
@@ -56,7 +68,7 @@ class _ActividadRecienteCardState extends State<ActividadRecienteCard> with Tick
     final isDarkMode = theme.brightness == Brightness.dark;
     final shadowColor = isDarkMode ? Colors.white : Colors.black;
     final textColor = isDarkMode ? Colors.white : Colors.black;
-    
+
     return Card(
       elevation: 10,
       shadowColor: shadowColor,
@@ -86,7 +98,7 @@ class _ActividadRecienteCardState extends State<ActividadRecienteCard> with Tick
               ],
             ),
             const SizedBox(height: 20),
-            
+
             // Contenedor para las tarjetas
             Container(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
@@ -100,10 +112,13 @@ class _ActividadRecienteCardState extends State<ActividadRecienteCard> with Tick
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 24),
                       child: Text(
-                        'No hay actividades programadas',
+                        _sinEmpresa
+                            ? 'Primero regístrate en una empresa'
+                            : 'No hay actividades programadas',
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: isDarkMode ? Colors.white70 : Colors.black54,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                     )
                   else
@@ -113,7 +128,6 @@ class _ActividadRecienteCardState extends State<ActividadRecienteCard> with Tick
                       cardHeight: 200,
                       cardWidth: MediaQuery.of(context).size.width * 0.8,
                     ),
-                  
                 ],
               ),
             ),
