@@ -1,6 +1,5 @@
 
 import 'dart:developer';
-import 'dart:math' as math;
 
 import 'package:fichi/main.dart';
 import 'package:fichi/model_classes/persona.dart';
@@ -65,93 +64,85 @@ Widget build(BuildContext context) {
       elevation: 0,
       centerTitle: true,
       leading: _LogoutHoldButton(),
-    ),
-    body: SafeArea(
-      bottom: false, // Desactivamos el SafeArea en la parte inferior
-      child: Stack(
-        children: [
-          // Contenido principal con padding inferior para el navigation bar
-          Padding(
-            padding: const EdgeInsets.only(bottom: 80), // Espacio para el navigation bar
-            child: _paginas[_paginaActual],
-          ),
-          
-          // Navigation bar posicionado en la parte inferior
-          Positioned(
-            left: 20,
-            right: 20,
-            bottom: 20,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              height: 60,
-              decoration: BoxDecoration(
-                color: AppColors.primaryBlue,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 20,
-                    offset: const Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: List.generate(3, (index) {
-                  final isSelected = _paginaActual == index;
-                  final icon = [Icons.home, Icons.person, Icons.business][index];
-                  final label = ['Inicio', 'Perfil', 'Empresa'][index];
 
-                  return Expanded(
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      onTap: () => setState(() => _paginaActual = index),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              icon,
-                              size: 22,
-                              color: isSelected ? AppColors.gradientPurple : iconColor,
-                            ),
-                            Stack(
-                              alignment: Alignment.bottomCenter,
-                              children: [
-                                Text(
-                                  label,
-                                  style: TextStyle(
-                                    color: isSelected ? AppColors.gradientPurple : iconColor,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w500,
-                                  ),
-                                ),
-                                AnimatedContainer(
-                                  duration: const Duration(milliseconds: 150),
-                                  curve: Curves.easeOut,
-                                  height: 1.5,
-                                  width: isSelected ? label.length * 8.0 : 0,
-                                  margin: const EdgeInsets.only(top: 2),
-                                  decoration: BoxDecoration(
-                                    color: AppColors.gradientPurple,
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-              ),
+    ),
+    body: Stack(
+  children: [
+    _paginas[_paginaActual], // contenido principal
+    Positioned(
+      left: 20,
+      right: 20,
+      bottom: 20,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        height: 60,
+        decoration: BoxDecoration(
+          color: AppColors.primaryBlue,
+          borderRadius: BorderRadius.circular(30),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 20,
+              offset: const Offset(0, 10),
             ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: List.generate(3, (index) {
+            final isSelected = _paginaActual == index;
+            final icon = [Icons.home, Icons.person, Icons.business][index];
+            final label = ['Inicio', 'Perfil', 'Empresa'][index];
+
+            return Expanded(
+  child: GestureDetector(
+    behavior: HitTestBehavior.translucent, // Asegura que el área ampliada sea clickeable
+    onTap: () => setState(() => _paginaActual = index),
+    child: Container(
+      padding: const EdgeInsets.symmetric(vertical: 10), // Más espacio vertical
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            icon,
+            size: 22,
+            color: isSelected ? AppColors.gradientPurple : iconColor,
+          ),
+          Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: isSelected ? AppColors.gradientPurple : iconColor,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                curve: Curves.easeOut,
+                height: 1.5,
+                width: isSelected ? label.length * 8.0 : 0,
+                margin: const EdgeInsets.only(top: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.gradientPurple,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     ),
+  ),
+);
+          }),
+        ),
+      ),
+    ),
+  ],
+),
   );
 }
 }
