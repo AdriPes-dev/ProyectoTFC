@@ -1,6 +1,4 @@
 
-import 'dart:developer';
-
 import 'package:fichi/main.dart';
 import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/screens/paginaprincipal.dart';
@@ -59,13 +57,20 @@ Widget build(BuildContext context) {
 
   return Scaffold(
     appBar: AppBar(
-      backgroundColor: Colors.transparent,
-      title: Text(widget.title, style: Theme.of(context).textTheme.titleMedium),
-      elevation: 0,
-      centerTitle: true,
-      leading: _LogoutHoldButton(),
-
+  backgroundColor: Colors.transparent,
+  title: Text(widget.title, 
+    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+      fontSize: 18, // Tamaño reducido para más espacio
     ),
+  ),
+  elevation: 0,
+  centerTitle: true,
+  leading: Padding(
+    padding: const EdgeInsets.only(left: 8.0),
+    child: _LogoutHoldButton(),
+  ),
+  leadingWidth: 56, // Ancho fijo para el área leading
+),
     body: Stack(
   children: [
     _paginas[_paginaActual], // contenido principal
@@ -151,88 +156,112 @@ class _LogoutHoldButton extends StatefulWidget {
   State<_LogoutHoldButton> createState() => _LogoutHoldButtonState();
 }
 
-class _LogoutHoldButtonState extends State<_LogoutHoldButton> {
-  bool _showHint = false;
+class _LogoutHoldButtonState extends State<_LogoutHoldButton> 
+    with SingleTickerProviderStateMixin {
+  bool _isPressed = false;
+  bool _isReadyToLogout = false; // Para saber si llegó al máximo color rojo
+
+  late AnimationController _controller;
+  late Animation<Color?> _colorAnimation;
+  late Animation<double> _scaleAnimation;
+
+  getIsPressed() {
+    return _isPressed;
+  } 
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1), // duración del progreso
+    );
+
+    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.2).animate(_controller);
+
+    _controller.addStatusListener((status) {
+      if (status == AnimationStatus.completed) {
+        setState(() {
+          _isReadyToLogout = true;
+        });
+      }
+      if (status == AnimationStatus.dismissed) {
+        setState(() {
+          _isReadyToLogout = false;
+        });
+      }
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    _colorAnimation = ColorTween(
+      begin: Theme.of(context).iconTheme.color,
+      end: Colors.red,
+    ).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   void _startHold() {
-    setState(() => _showHint = true);
-    // Trigger haptic feedback to indicate the button is ready to release
+    setState(() {
+      _isPressed = true;
+      _isReadyToLogout = false;
+    });
+    _controller.forward();
     HapticFeedback.mediumImpact();
   }
 
   void _endHold() async {
-    setState(() => _showHint = false);
-
-    await FirebaseAuth.instance.signOut();
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('dni');
-    log("Se ha cerrado la sesión");
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => MyApp()),
-      (route) => false,
-    );
+    if (_isReadyToLogout) {
+      // Cierre de sesión al haber completado el progreso
+      await FirebaseAuth.instance.signOut();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.remove('dni');
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => MyApp()),
+        (route) => false,
+      );
+    } else {
+      // Si no se completó el progreso, reversa la animación y no cierra sesión
+      await _controller.reverse();
+      setState(() {
+        _isPressed = false;
+        _isReadyToLogout = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final iconColor =
-        _showHint ? Colors.grey : (isDarkMode ? Colors.white : Colors.black);
-
     return SizedBox(
+      width: 48,
       height: kToolbarHeight,
-      child: GestureDetector(
-        onTapDown: (_) => _startHold(),
-        onTapUp: (_) => setState(() => _showHint = false),
-        onTapCancel: () => setState(() => _showHint = false),
-        onLongPressStart: (_) => _startHold(),
-        onLongPressEnd: (_) => _endHold(),
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: 48,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0),
-                child: Icon(Icons.logout_rounded, size: 24, color: iconColor),
-              ),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 300),
-                transitionBuilder: (Widget child, Animation<double> animation) {
-                  final offsetAnimation = Tween<Offset>(
-                    begin: const Offset(0, 0.5),
-                    end: const Offset(0, 0),
-                  ).animate(animation);
-                  return SlideTransition(
-                    position: offsetAnimation,
-                    child: FadeTransition(opacity: animation, child: child),
-                  );
-                },
-                child: _showHint
-                    ? Padding(
-                        key: const ValueKey('hint-text'),
-                        padding: const EdgeInsets.only(top: 4.0),
-                        child: FittedBox(
-                          fit: BoxFit.scaleDown,
-                          child: Text(
-                            'Cerrar sesión',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: iconColor,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      )
-                    : const SizedBox.shrink(
-                        key: ValueKey('no-hint'),
-                      ),
-              ),
-            ],
+      child: Tooltip(
+        message: 'Mantén presionado para cerrar sesión',
+        child: GestureDetector(
+          onLongPressStart: (_) => _startHold(),
+          onLongPressEnd: (_) => _endHold(),
+          child: AnimatedBuilder(
+            animation: _controller,
+            builder: (context, child) {
+              return Transform.scale(
+                scale: _scaleAnimation.value,
+                child: Icon(
+                  Icons.logout_rounded,
+                  color: _colorAnimation.value,
+                  size: 24,
+                ),
+              );
+            },
           ),
         ),
       ),
