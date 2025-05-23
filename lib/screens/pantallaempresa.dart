@@ -1,5 +1,6 @@
 import 'package:fichi/model_classes/empresa.dart';
 import 'package:fichi/screens/pantallaeditarempresa.dart';
+import 'package:fichi/screens/pantallaeliminarempleados.dart';
 import 'package:fichi/screens/pantallahistorialactividades.dart';
 import 'package:fichi/screens/pantallahistorialincidencias.dart';
 import 'package:fichi/screens/pantallaveractividadespendientes.dart';
@@ -566,6 +567,11 @@ Widget _buildSkeletonPersona() {
                 label: const Text('Historial Actividades'),
                 onPressed: _historialActividades
               ),
+              ActionChip(
+                avatar: const Icon(Icons.exit_to_app_rounded, size: 18),
+                label: const Text('Expulsar empleado'),
+                onPressed: _expulsarEmpleado,
+              ),
             ],
           ),
         ],
@@ -573,13 +579,24 @@ Widget _buildSkeletonPersona() {
     );
   }
 
-  void _anyadirEmpleado() {
-    Navigator.push(
+  void _anyadirEmpleado() async{
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => SolicitudesEntradaScreen(empresaCif: widget.personaAutenticada.empresaCif!,),
       ),
     );
+    await _cargarDatosEmpresa();
+  }
+
+  void _expulsarEmpleado() async{
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ExpulsarEmpleadoScreen(empresaCif: widget.personaAutenticada.empresaCif!,),
+      ),
+    );
+    await _cargarDatosEmpresa();
   }
 
   void _verIncidencias() {

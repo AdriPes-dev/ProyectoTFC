@@ -387,50 +387,111 @@ Future<void> eliminarEmpresa(String cifEmpresa) async {
 }
 
  Future<Map<String, dynamic>> obtenerEstadisticasFichajes(String dniEmpleado) async {
-    try {
-      final snapshot = await _db
-          .collection('fichajes')
-          .where('dniEmpleado', isEqualTo: dniEmpleado)
-          .get();
+  try {
+    final fichajesSnapshot = await _db
+        .collection('fichajes')
+        .where('dniEmpleado', isEqualTo: dniEmpleado)
+        .get();
 
-      if (snapshot.docs.isEmpty) {
-        return {
-          'totalHoras': 0.0,
-          'diasTrabajados': 0,
-          'incidencias': 0,
-        };
+    final fichajes = fichajesSnapshot.docs.map((doc) => doc.data()).toList();
+
+    final diasTrabajadosSet = <String>{}; // usamos string para evitar colisiones por año
+    double totalHoras = 0;
+
+    for (final fichaje in fichajes) {
+      final entrada = DateTime.tryParse(fichaje['entrada']);
+      if (entrada != null) {
+        final duracion = fichaje['duracion']; // en segundos
+        totalHoras += duracion / 3600.0;
+        final key = "${entrada.year}-${entrada.month}-${entrada.day}";
+        diasTrabajadosSet.add(key);
       }
-
-      double totalSegundos = 0;
-      final diasSet = <String>{};
-
-      for (var doc in snapshot.docs) {
-        final data = doc.data();
-        final duracion = (data['duracion'] ?? 0).toDouble();
-        totalSegundos += duracion;
-
-        final entrada = DateTime.tryParse(data['entrada'] ?? '');
-        if (entrada != null) {
-          diasSet.add("${entrada.year}-${entrada.month.toString().padLeft(2, '0')}-${entrada.day.toString().padLeft(2, '0')}");
-        }
-      }
-
-      final totalHoras = totalSegundos / 3600;
-
-      return {
-        'totalHoras': totalHoras,
-        'diasTrabajados': diasSet.length,
-        'incidencias': 0, // implementar si necesario
-      };
-    } catch (e) {
-      print("Error al obtener estadísticas: $e");
-      return {
-        'totalHoras': 0.0,
-        'diasTrabajados': 0,
-        'incidencias': 0,
-      };
     }
+
+    // Obtener incidencias también (sin filtrar por semana)
+    final incidenciasSnapshot = await _db
+        .collection('incidencias')
+        .where('dniEmpleado', isEqualTo: dniEmpleado)
+        .get();
+
+    final incidencias = incidenciasSnapshot.docs.map((doc) => doc.data()).toList();
+
+    return {
+      'totalHoras': totalHoras,
+      'diasTrabajados': diasTrabajadosSet.length,
+      'incidencias': incidencias.length,
+    };
+  } catch (e) {
+    log('Error al obtener estadísticas generales: $e');
+    rethrow;
   }
+}
+
+Future<Map<String, dynamic>> obtenerEstadisticasFichajesUltimoMes(String dniEmpleado) async {
+  try {
+    final ahora = DateTime.now();
+    final inicioMes = ahora.subtract(const Duration(days: 30));
+
+    final fichajesSnapshot = await _db
+        .collection('fichajes')
+        .where('dniEmpleado', isEqualTo: dniEmpleado)
+        .get();
+
+    final fichajes = fichajesSnapshot.docs
+        .map((doc) => doc.data())
+        .where((data) {
+          final entrada = DateTime.tryParse(data['entrada']);
+          return entrada != null && entrada.isAfter(inicioMes) && entrada.isBefore(ahora);
+        })
+        .toList();
+
+    final diasTrabajadosSet = <DateTime>{};
+    double totalHoras = 0;
+
+    for (final fichaje in fichajes) {
+      final entrada = DateTime.parse(fichaje['entrada']);
+      final entradaSinHora = DateTime(entrada.year, entrada.month, entrada.day);
+      final duracion = fichaje['duracion']; // en segundos
+      totalHoras += duracion / 3600.0;
+      diasTrabajadosSet.add(entradaSinHora); // cada día trabajado
+    }
+
+    // Obtener incidencias del último mes
+    final incidenciasSnapshot = await _db
+        .collection('incidencias')
+        .where('dniEmpleado', isEqualTo: dniEmpleado)
+        .get();
+
+    final incidencias = incidenciasSnapshot.docs
+        .map((doc) => doc.data())
+        .where((data) {
+          final fecha = DateTime.tryParse(data['fechaReporte']);
+          return fecha != null && fecha.isAfter(inicioMes) && fecha.isBefore(ahora);
+        })
+        .toList();
+
+    // Crear lista de 30 valores booleanos, uno por día desde hoy hacia atrás
+    final diasBool = List<bool>.filled(30, false);
+    for (final dia in diasTrabajadosSet) {
+      final diferencia = ahora.difference(dia).inDays;
+      if (diferencia >= 0 && diferencia < 30) {
+        diasBool[29 - diferencia] = true; // invertir para que el índice 0 sea el día más antiguo
+      }
+    }
+
+    return {
+      'totalHoras': totalHoras,
+      'diasTrabajados': diasTrabajadosSet.length,
+      'totalDias': 30,
+      'dias': diasBool,
+      'incidencias': incidencias.length,
+    };
+  } catch (e) {
+    log('Error al obtener estadísticas mensuales: $e');
+    rethrow;
+  }
+}
+
   Future<Map<String, dynamic>> obtenerEstadisticasFichajesUltimaSemana(String dniEmpleado) async {
   try {
     final ahora = DateTime.now();
@@ -490,6 +551,19 @@ Future<void> eliminarEmpresa(String cifEmpresa) async {
     log('Error al obtener estadísticas semanales: $e');
     rethrow;
   }
+}
+Future<void> expulsarEmpleadoDeEmpresa(String dni, String empresaCif) async {
+  await FirebaseFirestore.instance.collection('personas')
+    .where('dni', isEqualTo: dni)
+    .get()
+    .then((snapshot) async {
+      if (snapshot.docs.isNotEmpty) {
+        final docId = snapshot.docs.first.id;
+        await FirebaseFirestore.instance.collection('personas').doc(docId).update({
+          'empresaCif': null,
+        });
+      }
+    });
 }
 }
 

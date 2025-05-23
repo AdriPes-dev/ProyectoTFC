@@ -130,7 +130,6 @@ void _mostrarDialogoEliminarEmpresa() {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Editar Empresa"),
-        backgroundColor: AppColors.mainGradient.colors.first,
         actions: [
           IconButton(
             icon: const Icon(Icons.delete),

@@ -184,7 +184,7 @@ class _EstadoCircularIncidenciasState extends State<EstadoCircularIncidencias> w
   }
 
   Color getColorPorIncidencias(int incidencias, double porcentaje) {
-    if (incidencias <= 1) return Colors.green;
+    if (incidencias < 5) return Colors.green;
     return Color.lerp(Colors.yellow, Colors.red, porcentaje)!;
   }
 

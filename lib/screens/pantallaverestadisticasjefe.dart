@@ -19,74 +19,90 @@ class PantallaEstadisticasEmpleados extends StatelessWidget {
     return await FirebaseService().obtenerEstadisticasFichajesUltimaSemana(dniEmpleado);
   }
 
+  Widget _buildEstadisticaCard(Persona persona, Map<String, dynamic> datos) {
+    return Card(
+      margin: const EdgeInsets.all(10),
+      elevation: 4,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Información de texto (izquierda)
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${persona.nombre} ${persona.apellidos}',
+                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  Text('Días trabajados: ${datos['diasTrabajados']}'),
+                  Text('Incidencias: ${datos['incidencias']}'),
+                ],
+              ),
+            ),
+            // Widget circular compacto (derecha)
+            MiniEstadoCircularHoras(
+              horasTrabajadas: datos['totalHoras'],
+              horasTotales: 40.0,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPersonaConEstadisticas(Persona persona) {
+    return FutureBuilder<Map<String, dynamic>>(
+      future: obtenerEstadisticas(persona.dni),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (snapshot.hasError) {
+          return ListTile(
+            title: Text('${persona.nombre} ${persona.apellidos}'),
+            subtitle: const Text('Error al cargar estadísticas'),
+          );
+        }
+
+        final datos = snapshot.data ?? {};
+        return _buildEstadisticaCard(persona, datos);
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    final todos = [ceo, ...empleados];
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Estadísticas de empleados'),
       ),
-      body: ListView.builder(
-        itemCount: todos.length,
-        itemBuilder: (context, index) {
-          final persona = todos[index];
-
-          return FutureBuilder<Map<String, dynamic>>(
-            future: obtenerEstadisticas(persona.dni),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-
-              if (snapshot.hasError) {
-                return ListTile(
-                  title: Text('${persona.nombre} ${persona.apellidos}'),
-                  subtitle: const Text('Error al cargar estadísticas'),
-                );
-              }
-
-              final datos = snapshot.data ?? {};
-
-              return Card(
-  margin: const EdgeInsets.all(10),
-  elevation: 4,
-  child: Padding(
-    padding: const EdgeInsets.all(16.0),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Información de texto (izquierda)
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                persona.nombre,
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Text('Días trabajados: ${datos['diasTrabajados']}'),
-              Text('Incidencias: ${datos['incidencias']}'),
-            ],
+      body: ListView(
+        children: [
+          const Padding(
+            padding: EdgeInsets.all(16.0),
+            child: Text(
+              'Tú',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
           ),
-        ),
-
-        // Widget circular compacto (derecha)
-        MiniEstadoCircularHoras(
-          horasTrabajadas: datos['totalHoras'],
-          horasTotales: 40.0,
-        ),
-      ],
-    ),
-  ),
-);
-            },
-          );
-        },
+          _buildPersonaConEstadisticas(ceo),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+            child: Text(
+              'Empleados',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+          ...empleados.map((empleado) => _buildPersonaConEstadisticas(empleado)).toList(),
+        ],
       ),
     );
   }

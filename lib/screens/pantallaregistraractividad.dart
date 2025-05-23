@@ -136,10 +136,14 @@ class _CrearActividadScreenState extends State<CrearActividadScreen> {
                 ),
               ),
               SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: _guardarActividad,
-                child: Text('Guardar Actividad'),
-              ),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.save),
+                  label: const Text('Crear Actividad'),
+                  onPressed: _guardarActividad,
+                ),
+              )
             ],
           ),
         ),
