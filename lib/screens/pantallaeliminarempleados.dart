@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fichi/components/custom_snackbar.dart';
 import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/services/consultas_firebase.dart';
 import 'package:flutter/material.dart';
@@ -35,8 +36,12 @@ class _ExpulsarEmpleadoScreenState extends State<ExpulsarEmpleadoScreen> {
     await FirebaseFirestore.instance.collection('personas').doc(persona.dni).update({
       'empresaCif': null,
     });
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${persona.nombre} ha sido expulsado.')),
+
+    CustomSnackbar.mostrar(
+      context,
+      '${persona.nombre} ha sido expulsado.',
+      icono: Icons.check_circle,
+      texto: Colors.green,
     );
     cargarEmpleados();
   }

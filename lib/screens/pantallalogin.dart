@@ -1,4 +1,5 @@
 import 'package:fichi/components/bordesdegradados.dart';
+import 'package:fichi/components/custom_snackbar.dart';
 import 'package:fichi/components/textfieldcontrasenya.dart';
 import 'package:fichi/components/textfieldcorreo.dart';
 import 'package:fichi/screens/menuprincipal.dart';
@@ -41,7 +42,7 @@ class _ContenidoPrincipalState extends State<ContenidoPrincipal> {
       final password = _passwordController.text.trim();
 
       if (email.isEmpty || password.isEmpty) {
-        throw "Por favor ingrese correo y contraseña";
+        throw "campos";
       }
 
       final persona = await _authService.signInWithEmailAndPassword(email, password);
@@ -55,12 +56,24 @@ class _ContenidoPrincipalState extends State<ContenidoPrincipal> {
           ),
         );
       } else {
-        throw "No se pudo iniciar sesión. Verifique sus credenciales.";
+        throw "creds";
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
-      );
+  String mensajeError;
+  if (e == "campos") {
+    mensajeError = "Complete todos los campos para continuar.";
+  } else if (e == "creds") {
+    mensajeError = "Credenciales incorrectas, inténtelo de nuevo.";
+  } else {
+    mensajeError = "Error inesperado";
+  }
+
+   CustomSnackbar.mostrar(
+    context,
+    mensajeError,
+    icono: Icons.error_outline,
+    texto: Colors.red,
+  );
     } finally {
       setState(() => _isLoading = false);
     }

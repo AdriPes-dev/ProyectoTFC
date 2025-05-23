@@ -1,3 +1,4 @@
+import 'package:fichi/components/custom_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fichi/model_classes/persona.dart';
@@ -73,8 +74,33 @@ class _UnirseAEmpresaScreenState extends State<UnirseAEmpresaScreen> {
   }
 }
 
-  Future<void> _unirseAEmpresa(Empresa empresa) async {
+ Future<void> _unirseAEmpresa(Empresa empresa) async {
   try {
+    final solicitudesSnapshot = await FirebaseFirestore.instance
+        .collection('solicitudes_ingreso')
+        .where('dni', isEqualTo: widget.persona.dni)
+        .get();
+
+    final tieneSolicitudActiva = solicitudesSnapshot.docs.any((doc) {
+      final data = doc.data();
+      final aceptada = data['aceptada'];
+      // Retorna true si la solicitud está pendiente (null) o aceptada (true)
+      return aceptada == null || aceptada == true;
+    });
+
+    if (tieneSolicitudActiva) {
+      if (mounted) {
+        CustomSnackbar.mostrar(
+          context,
+          "Ya tienes una solicitud pendiente. No puedes enviar otra.",
+          icono: Icons.info_outline,
+          texto: Colors.orange,
+        );
+      }
+      return;
+    }
+
+    // No hay solicitudes activas, enviar nueva solicitud
     await FirebaseFirestore.instance.collection('solicitudes_ingreso').add({
       'dni': widget.persona.dni,
       'empresaCif': empresa.cif,
@@ -83,15 +109,21 @@ class _UnirseAEmpresaScreenState extends State<UnirseAEmpresaScreen> {
     });
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Solicitud enviada a ${empresa.nombre}")),
+      CustomSnackbar.mostrar(
+        context,
+        'Solicitud enviada a ${empresa.nombre}',
+        icono: Icons.check_circle,
+        texto: Colors.green,
       );
-      Navigator.pop(context); // Regresa después de enviar la solicitud
+      Navigator.pop(context);
     }
   } catch (e) {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error al enviar solicitud: $e")),
+      CustomSnackbar.mostrar(
+        context,
+        "Error al enviar solicitud: $e",
+        icono: Icons.error_outline,
+        texto: Colors.red,
       );
     }
   }

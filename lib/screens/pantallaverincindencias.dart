@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:fichi/components/custom_snackbar.dart';
 import 'package:fichi/model_classes/empresa.dart';
 import 'package:fichi/model_classes/incidencia.dart';
 import 'package:fichi/model_classes/persona.dart';
@@ -133,12 +134,21 @@ class _PantallaIncidenciasEmpresaState extends State<PantallaIncidenciasEmpresa>
 }
 
 void _mostrarMensaje(String mensaje) {
-  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(mensaje)));
+  CustomSnackbar.mostrar(
+  context,
+  mensaje,
+  icono: Icons.check_circle,
+  texto: Colors.green,
+);
 }
 
 void _mostrarError(String mensaje) {
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(content: Text(mensaje), backgroundColor: Colors.red),
-  );
+
+  CustomSnackbar.mostrar(
+  context,
+  mensaje,
+  icono: Icons.error_outline,
+  texto: Colors.red,
+);
 }
 }

@@ -1,3 +1,4 @@
+import 'package:fichi/components/custom_snackbar.dart';
 import 'package:fichi/model_classes/incidencia.dart';
 import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/services/consultas_firebase.dart';
@@ -34,14 +35,20 @@ class _RegistrarIncidenciaState extends State<RegistrarIncidencia> {
       await firebaseService.guardarIncidenciaEnFirestore(nuevaIncidencia);
 
       // Feedback al usuario
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Incidencia registrada en Firebase')),
-      );
+      CustomSnackbar.mostrar(
+  context,
+  'Incidencia registrada en Firebase',
+  icono: Icons.check_circle,
+  texto: Colors.green,
+);
       Navigator.pop(context);
     } catch (_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error al registrar la incidencia')),
-      );
+      CustomSnackbar.mostrar(
+  context,
+  'Error al registrar la incidencia',
+  icono: Icons.error_outline,
+  texto: Colors.red,
+);
     }
   }
 }

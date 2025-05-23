@@ -1,4 +1,5 @@
 import 'package:fichi/components/bordesdegradados.dart';
+import 'package:fichi/components/custom_snackbar.dart';
 import 'package:fichi/services/consultas_firebase.dart';
 import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/cupertino.dart';
@@ -244,13 +245,19 @@ void _verificarCambios() {
         widget.onPersonaActualizada(actualizada);
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Datos actualizados correctamente.')),
-    );
+    CustomSnackbar.mostrar(
+  context,
+  'Datos actualizados correctamente',
+  icono: Icons.check_circle,
+  texto: Colors.green,
+);
   } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Error al actualizar los datos: $e')),
-    );
+    CustomSnackbar.mostrar(
+  context,
+  'Error al actualizar los datos: $e',
+  icono: Icons.error_outline,
+  texto: Colors.red,
+);
   } finally {
     setState(() {
       _isLoading = false;

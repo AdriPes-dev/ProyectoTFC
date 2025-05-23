@@ -1,3 +1,4 @@
+import 'package:fichi/components/custom_snackbar.dart';
 import 'package:fichi/model_classes/actividad.dart';
 import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/services/consultas_firebase.dart';
@@ -62,13 +63,19 @@ class _CrearActividadScreenState extends State<CrearActividadScreen> {
 
     try {
       await _firebaseService.guardarActividadEnFirestore(actividad);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Actividad guardada correctamente.')),
+      CustomSnackbar.mostrar(
+        context,
+        'Actividad guardada correctamente.',
+        icono: Icons.check_circle,
+        texto: Colors.green,
       );
       Navigator.pop(context); // Volver a la pantalla anterior
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al guardar la actividad.')),
+      CustomSnackbar.mostrar(
+        context,
+        'Error al guardar la actividad.',
+        icono: Icons.error_outline,
+        texto: Colors.red,
       );
     }
   }

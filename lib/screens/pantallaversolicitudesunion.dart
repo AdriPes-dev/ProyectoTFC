@@ -1,5 +1,6 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fichi/components/custom_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:fichi/services/consultas_firebase.dart';
 import 'package:fichi/model_classes/solicitudentrada.dart';
@@ -78,18 +79,21 @@ class _SolicitudesEntradaScreenState extends State<SolicitudesEntradaScreen> {
   }
 
   void _mostrarMensaje(String mensaje) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensaje)),
-    );
+    CustomSnackbar.mostrar(
+  context,
+  mensaje,
+  icono: Icons.check_circle,
+  texto: Colors.green,
+);
   }
 
   void _mostrarError(String error) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(error),
-        backgroundColor: Colors.red,
-      ),
-    );
+    CustomSnackbar.mostrar(
+  context,
+  error,
+  icono: Icons.error_outline,
+  texto: Colors.red,
+);
   }
 
   Future<String> _obtenerNombrePorDni(String dni) async {
@@ -138,7 +142,7 @@ class _SolicitudesEntradaScreenState extends State<SolicitudesEntradaScreen> {
               _actualizarEstadoSolicitud(solicitud, aceptar);
             },
             child: Text(
-              aceptar ? 'Aceptar' : 'En proceso',
+              aceptar ? 'Aceptar' : 'Rechazada',
               style: TextStyle(
                 color: aceptar ? Colors.green : Colors.red,
               ),
@@ -231,7 +235,7 @@ class _SolicitudesEntradaScreenState extends State<SolicitudesEntradaScreen> {
                         ? 'Pendiente'
                         : solicitud.aceptada!
                             ? 'Aceptada'
-                            : 'En proceso',
+                            : 'Rechazada',
                     style: TextStyle(
                       color: solicitud.aceptada == null
                           ? Colors.orange

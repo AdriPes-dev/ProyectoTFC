@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:fichi/components/custom_snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/model_classes/empresa.dart';
@@ -96,12 +97,13 @@ class _CrearEmpresaScreenState extends State<CrearEmpresaScreen> {
                         .get();
 
                     if (existePorNombre.exists || existePorCif.docs.isNotEmpty) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Ya existe una empresa con ese nombre o CIF.'),
-                          backgroundColor: Colors.red,
-                        ),
-                      );
+                      CustomSnackbar.mostrar(
+                          context,
+                          'Ya existe una empresa con ese nombre o CIF.',
+                          icono: Icons.warning_amber_rounded,
+                          fondo: Colors.white,
+                          texto: Colors.red,
+                        );
                       return;
                     }
 
@@ -136,15 +138,21 @@ class _CrearEmpresaScreenState extends State<CrearEmpresaScreen> {
                       widget.persona.esJefe = true;
 
                       // Muestra un mensaje de éxito
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Empresa creada con éxito')),
+                      CustomSnackbar.mostrar(
+                        context,
+                        'Empresa creada con éxito',
+                        icono: Icons.check_circle,
+                        texto: Colors.green,
                       );
 
                       // Regresa a la pantalla anterior
                       Navigator.pop(context, widget.persona);
                     } catch (e) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Error al crear la empresa: $e')),
+                      CustomSnackbar.mostrar(
+                        context,
+                        'Error al crear la empresa: $e',
+                        icono: Icons.error_outline,
+                        texto: Colors.red,
                       );
                     }
                   }

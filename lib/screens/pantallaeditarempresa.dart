@@ -1,4 +1,5 @@
 import 'package:fichi/components/bordesdegradados.dart';
+import 'package:fichi/components/custom_snackbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fichi/theme/appcolors.dart';
@@ -99,16 +100,22 @@ void _mostrarDialogoEliminarEmpresa() {
                 } else {
                   if (!mounted) return;
 
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('No se pudo obtener el jefe de la empresa.')),
+                  CustomSnackbar.mostrar(
+                    context,
+                    'No se pudo obtener el jefe de la empresa',
+                    icono: Icons.error_outline,
+                    texto: Colors.red,
                   );
                 }
               } catch (e) {
                 if (!mounted) return;
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error al eliminar empresa: $e')),
-                );
+               CustomSnackbar.mostrar(
+                    context,
+                    'Error al eliminar la empresa: $e',
+                    icono: Icons.error_outline,
+                    texto: Colors.red,
+                  );
               } finally {
                 if (!mounted) return;
 
@@ -226,15 +233,21 @@ void _mostrarDialogoEliminarEmpresa() {
       );
 
       await FirebaseService().actualizarEmpresa(empresaActualizada);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Empresa actualizada correctamente')),
-      );
+      CustomSnackbar.mostrar(
+          context,
+          'Empresa actualizada correctamente',
+          icono: Icons.check_circle,
+          texto: Colors.green,
+        );
       setState(() {
         _cambiosRealizados = false;
       });
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al actualizar la empresa: $e')),
+      CustomSnackbar.mostrar(
+        context,
+        'Error al actualizar la empresa: $e',
+        icono: Icons.error_outline,
+        texto: Colors.red,
       );
     } finally {
       setState(() {

@@ -1,4 +1,5 @@
 import 'package:fichi/components/bordesdegradados.dart';
+import 'package:fichi/components/custom_snackbar.dart';
 import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/screens/menuprincipal.dart';
 import 'package:fichi/theme/appcolors.dart';
@@ -46,8 +47,11 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
         _dniController.text.isEmpty ||
         _contrasenyaController.text.isEmpty) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Por favor complete todos los campos correctamente")),
+      CustomSnackbar.mostrar(
+        context,
+        'Por favor, completa todos los campos',
+        icono: Icons.error_outline,
+        texto: Colors.red,
       );
       return;
     }
@@ -88,9 +92,11 @@ class _PantallaRegistroState extends State<PantallaRegistro> {
         );
       }
     } catch (e) {
-      // Mostrar error al usuario
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString())),
+      CustomSnackbar.mostrar(
+        context,
+        'Error al crear el usuario',
+        icono: Icons.error_outline,
+        texto: Colors.red,
       );
     } finally {
       setState(() => _isLoading = false);
