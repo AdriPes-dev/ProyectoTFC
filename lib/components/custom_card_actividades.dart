@@ -70,16 +70,24 @@ class _ActividadRecienteCardState extends State<ActividadRecienteCard> with Tick
     final textColor = isDarkMode ? Colors.white : Colors.black;
 
     return Card(
-      elevation: 10,
+      elevation: 0,
       shadowColor: shadowColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
       child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-        ),
+  padding: const EdgeInsets.all(20),
+  decoration: BoxDecoration(
+    borderRadius: BorderRadius.circular(16),
+    color: Theme.of(context).cardColor,
+    boxShadow: [
+      BoxShadow(
+        color: AppColors.primaryBlue.withOpacity(0.4), // Sombra azul
+        blurRadius: 20,
+        offset: const Offset(0, 10),
+      ),
+    ],
+  ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

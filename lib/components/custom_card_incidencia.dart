@@ -13,8 +13,6 @@ class WidgetIncidencia extends StatelessWidget {
 
   @override
 Widget build(BuildContext context) {
-  final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-  final shadowColor = isDarkMode ? Colors.white : Colors.black;
   final cardColor = Theme.of(context).cardColor; 
 
   return GestureDetector(
@@ -25,42 +23,49 @@ Widget build(BuildContext context) {
     );
   },
   child: Card(
-    shape: RoundedRectangleBorder(
+  elevation: 0, // Quitamos la sombra por defecto
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(16),
+  ),
+  child: Container(
+    decoration: BoxDecoration(
+      color: cardColor,
       borderRadius: BorderRadius.circular(16),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.blue.withOpacity(0.3),
+          blurRadius: 12,
+          spreadRadius: 2,
+          offset: Offset(0, 4), // sombra azul por todos lados
+        ),
+      ],
     ),
-    elevation: 10,
-    shadowColor: shadowColor,
-    child: Container(
-      decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.warning_amber_rounded, size: 50, color: AppColors.primaryBlue),
-            SizedBox(height: 8),
-            Row(
-              children: [
-                SizedBox(width: 8),
-                Text(
+    child: Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.warning_amber_rounded, size: 50, color: AppColors.primaryBlue),
+          SizedBox(height: 8),
+          Row(
+            children: [
+              SizedBox(width: 8),
+              Text(
                 "Registrar Incidencia",
                 textAlign: TextAlign.center,
                 softWrap: true,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                SizedBox(width: 8),
-              ],
-            ),
-          ],
-        ),
+              ),
+              SizedBox(width: 8),
+            ],
+          ),
+        ],
       ),
     ),
   ),
+),
 );
 }
 }

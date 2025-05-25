@@ -5,6 +5,7 @@ import 'package:fichi/model_classes/empresa.dart';
 import 'package:fichi/model_classes/incidencia.dart';
 import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/services/consultas_firebase.dart';
+import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
@@ -52,8 +53,6 @@ class _PantallaIncidenciasEmpresaState extends State<PantallaIncidenciasEmpresa>
 
     @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final shadowColor = isDarkMode ? Colors.white : Colors.black;
 
     return Scaffold(
       appBar: AppBar(
@@ -95,7 +94,7 @@ class _PantallaIncidenciasEmpresaState extends State<PantallaIncidenciasEmpresa>
                   ),
                   child: Card(
                     elevation: 5,
-                    shadowColor: shadowColor,
+                    shadowColor: AppColors.primaryBlue.withOpacity(0.4),
                     margin: const EdgeInsets.all(8),
                     child: ListTile(
                       leading: CircleAvatar(

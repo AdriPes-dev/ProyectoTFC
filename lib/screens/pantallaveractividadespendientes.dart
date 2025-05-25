@@ -1,5 +1,6 @@
 import 'package:fichi/components/custom_snackbar.dart';
 import 'package:fichi/model_classes/empresa.dart';
+import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:intl/intl.dart';
@@ -77,8 +78,6 @@ class _PantallaActividadesPendientesState extends State<PantallaActividadesPendi
 
   @override
   Widget build(BuildContext context) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final shadowColor = isDarkMode ? Colors.white : Colors.black;
 
     return Scaffold(
       appBar: AppBar(
@@ -129,31 +128,36 @@ class _PantallaActividadesPendientesState extends State<PantallaActividadesPendi
                     ],
                   ),
                   child: Card(
-                    elevation: 5,
-                    shadowColor: shadowColor,
-                    margin: const EdgeInsets.all(8),
-                    child: ListTile(
-                      leading: const Icon(Icons.calendar_today, size: 40),
-                      title: Text(actividad.titulo),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(actividad.descripcion),
-                          const SizedBox(height: 4),
-                          Row(
-                            children: [
-                              const Icon(Icons.access_time, size: 16),
-                              const SizedBox(width: 4),
-                              Text(
-                                DateFormat('dd/MM/yyyy').format(actividad.fechaActividad),
-                                style: const TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+  elevation: 8,
+  margin: const EdgeInsets.all(8),
+  shadowColor: AppColors.primaryBlue.withOpacity(0.4),
+  surfaceTintColor: Colors.transparent,
+  color: Theme.of(context).cardColor,
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(16),
+  ),
+  child: ListTile(
+    leading: const Icon(Icons.calendar_today, size: 40),
+    title: Text(actividad.titulo),
+    subtitle: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(actividad.descripcion),
+        const SizedBox(height: 4),
+        Row(
+          children: [
+            const Icon(Icons.access_time, size: 16),
+            const SizedBox(width: 4),
+            Text(
+              DateFormat('dd/MM/yyyy').format(actividad.fechaActividad),
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+      ],
+    ),
+  ),
+),
                 );
               },
             );

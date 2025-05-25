@@ -75,38 +75,65 @@ class _ExpulsarEmpleadoScreenState extends State<ExpulsarEmpleadoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final shadowColor = isDarkMode ? Colors.blue.shade300 : Colors.blue.shade700;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Expulsar Empleados')),
       body: empleados.isEmpty
           ? const Center(child: Text('No hay empleados para expulsar.'))
           : ListView.builder(
               itemCount: empleados.length,
+              padding: const EdgeInsets.symmetric(vertical: 12),
               itemBuilder: (context, index) {
                 final persona = empleados[index];
-                return Dismissible(
-                  key: Key(persona.dni),
-                  direction: DismissDirection.horizontal, // ←→ ambos lados
-                  confirmDismiss: (_) => mostrarDialogoConfirmacion(persona),
-                  onDismissed: (_) => expulsarEmpleado(persona),
-                  background: Container(
-                    alignment: Alignment.centerLeft,
-                    color: Colors.red,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
-                  secondaryBackground: Container(
-                    alignment: Alignment.centerRight,
-                    color: Colors.red,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: const Icon(Icons.delete, color: Colors.white),
-                  ),
-                  child: Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    child: ListTile(
-                      title: Text(persona.nombre),
-                      subtitle: Text('DNI: ${persona.dni}'),
-                    ),
-                  ),
+                return TweenAnimationBuilder<double>(
+                  duration: const Duration(milliseconds: 400),
+                  curve: Curves.easeOut,
+                  tween: Tween(begin: 0, end: 1),
+                  builder: (context, value, child) {
+                    return Opacity(
+                      opacity: value,
+                      child: Transform.translate(
+                        offset: Offset(0, 30 * (1 - value)),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                          child: Dismissible(
+                            key: Key(persona.dni),
+                            direction: DismissDirection.horizontal,
+                            confirmDismiss: (_) => mostrarDialogoConfirmacion(persona),
+                            onDismissed: (_) => expulsarEmpleado(persona),
+                            background: Container(
+                              alignment: Alignment.centerLeft,
+                              color: Colors.red,
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: const Icon(Icons.delete, color: Colors.white),
+                            ),
+                            secondaryBackground: Container(
+                              alignment: Alignment.centerRight,
+                              color: Colors.red,
+                              padding: const EdgeInsets.symmetric(horizontal: 20),
+                              child: const Icon(Icons.delete, color: Colors.white),
+                            ),
+                            child: Card(
+                              elevation: 5,
+                              shadowColor: shadowColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                                child: ListTile(
+                                  title: Text(persona.nombre),
+                                  subtitle: Text('DNI: ${persona.dni}'),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
                 );
               },
             ),

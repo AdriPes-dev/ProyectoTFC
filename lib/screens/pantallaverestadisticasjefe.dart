@@ -20,8 +20,20 @@ class PantallaEstadisticasEmpleados extends StatelessWidget {
   }
 
   Widget _buildEstadisticaCard(Persona persona, Map<String, dynamic> datos) {
-    return Card(
-      margin: const EdgeInsets.all(10),
+  return Container(
+    margin: const EdgeInsets.all(10),
+    decoration: BoxDecoration(
+      boxShadow: [
+        BoxShadow(
+          color: AppColors.primaryBlue.withOpacity(0.3),
+          blurRadius: 10,
+          offset: const Offset(0, 4),
+        ),
+      ],
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       elevation: 4,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -51,8 +63,9 @@ class PantallaEstadisticasEmpleados extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildPersonaConEstadisticas(Persona persona) {
     return FutureBuilder<Map<String, dynamic>>(

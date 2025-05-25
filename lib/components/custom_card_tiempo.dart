@@ -132,20 +132,27 @@ class _TimeTrackerState extends State<TimeTracker> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final shadowColor = isDarkMode ? Colors.white : Colors.black;
     final textColor = isDarkMode ? Colors.white : Colors.black;
     
     return Card(
-      elevation: 10,
-      shadowColor: shadowColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
+  elevation: 0, // Eliminamos la elevación predeterminada
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(16),
+  ),
+  child: Container(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.circular(16),
+      color: Theme.of(context).cardColor,
+      boxShadow: [
+        BoxShadow(
+          color: Colors.blue.withOpacity(0.3), // sombra azul clara
+          blurRadius: 12,
+          spreadRadius: 2,
+          offset: Offset(0, 4), // sombra en todas direcciones
         ),
+      ],
+    ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

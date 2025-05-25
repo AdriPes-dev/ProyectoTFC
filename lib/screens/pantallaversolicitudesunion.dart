@@ -1,6 +1,7 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fichi/components/custom_snackbar.dart';
+import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/material.dart';
 import 'package:fichi/services/consultas_firebase.dart';
 import 'package:fichi/model_classes/solicitudentrada.dart';
@@ -154,8 +155,6 @@ class _SolicitudesEntradaScreenState extends State<SolicitudesEntradaScreen> {
   }
 
   Widget _buildTarjetaSolicitud(SolicitudIngreso solicitud) {
-    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    final shadowColor = isDarkMode ? Colors.white : Colors.black;
   return Slidable(
     key: ValueKey(solicitud.id),
     closeOnScroll: true,
@@ -186,7 +185,7 @@ class _SolicitudesEntradaScreenState extends State<SolicitudesEntradaScreen> {
     child: Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 5,
-      shadowColor: shadowColor,
+      shadowColor: AppColors.primaryBlue.withOpacity(0.5),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -286,6 +285,85 @@ class _SolicitudesEntradaScreenState extends State<SolicitudesEntradaScreen> {
     );
   }
 
+  Widget _buildTarjetaSolicitudNoSlide(SolicitudIngreso solicitud) {
+  return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      elevation: 5,
+      shadowColor: AppColors.primaryBlue.withOpacity(0.5),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Encabezado
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+  child: FutureBuilder<String>(
+    future: _obtenerNombrePorDni(solicitud.dniSolicitante),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return const Text(
+          'Cargando...',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        );
+      } else if (snapshot.hasError) {
+        return const Text(
+          'Error al cargar nombre',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        );
+      } else {
+        return Text(
+          snapshot.data ?? 'Nombre no disponible',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          overflow: TextOverflow.ellipsis,
+        );
+      }
+    },
+  ),
+),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: solicitud.aceptada == null
+                        ? Colors.orange.withOpacity(0.2)
+                        : solicitud.aceptada!
+                            ? Colors.green.withOpacity(0.2)
+                            : Colors.red.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    solicitud.aceptada == null
+                        ? 'Pendiente'
+                        : solicitud.aceptada!
+                            ? 'Aceptada'
+                            : 'Rechazada',
+                    style: TextStyle(
+                      color: solicitud.aceptada == null
+                          ? Colors.orange
+                          : solicitud.aceptada!
+                              ? Colors.green
+                              : Colors.red,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            _buildDetalleSolicitud('DNI', solicitud.dniSolicitante),
+            _buildDetalleSolicitud('Cif de la empresa', solicitud.empresaCif),
+            _buildDetalleSolicitud(
+              'Fecha',
+              '${solicitud.fechaSolicitud.day}/${solicitud.fechaSolicitud.month}/${solicitud.fechaSolicitud.year}',
+            ),
+          ],
+        ),
+      ),
+    );
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -293,29 +371,18 @@ class _SolicitudesEntradaScreenState extends State<SolicitudesEntradaScreen> {
         title: Text('Solicitudes de unión'),
         actions: [
           PopupMenuButton<String>(
-            onSelected: (String value) {
-              setState(() => _filtro = value);
-              _cargarSolicitudes();
-            },
-            itemBuilder: (BuildContext context) => [
-              const PopupMenuItem(
-                value: 'Todas',
-                child: Text('Todas las solicitudes'),
-              ),
-              const PopupMenuItem(
-                value: 'Pendientes',
-                child: Text('Solicitudes pendientes'),
-              ),
-              const PopupMenuItem(
-                value: 'Aceptadas',
-                child: Text('Solicitudes aceptadas'),
-              ),
-              const PopupMenuItem(
-                value: 'Rechazadas',
-                child: Text('Solicitudes rechazadas'),
-              ),
-            ],
-          ),
+  onSelected: (String value) {
+    setState(() {
+      _filtro = value;
+      _cargarSolicitudes();
+    });
+  },
+  itemBuilder: (BuildContext context) => [
+    const PopupMenuItem(value: 'Pendientes', child: Text('Pendientes')),
+    const PopupMenuItem(value: 'Aceptadas', child: Text('Aceptadas')),
+    const PopupMenuItem(value: 'Rechazadas', child: Text('Rechazadas')),
+  ],
+),
         ],
       ),
       body: _cargando
@@ -333,7 +400,14 @@ class _SolicitudesEntradaScreenState extends State<SolicitudesEntradaScreen> {
                     padding: const EdgeInsets.only(top: 8, bottom:8),
 itemCount: _solicitudes.length,
 itemBuilder: (context, index) {
-return _buildTarjetaSolicitud(_solicitudes[index]);
+  final solicitud = _solicitudes[index];
+
+  // Si el filtro actual es "Pendientes", usa tarjeta deslizable
+  if (_filtro == 'Pendientes') {
+    return _buildTarjetaSolicitud(solicitud);
+  } else {
+    return _buildTarjetaSolicitudNoSlide(solicitud);
+  }
 },
 ),
 ),

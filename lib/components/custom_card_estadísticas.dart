@@ -127,59 +127,67 @@ class CartelEstadisticas extends StatelessWidget {
   }
 
   Widget _buildCardEstadisticas(
-    BuildContext context, 
-    Color shadowColor, 
-    double horas, 
-    int dias, 
-    int incidencias
-  ) {
-    return Card(
-      shape: RoundedRectangleBorder(
+  BuildContext context, 
+  Color shadowColor, 
+  double horas, 
+  int dias, 
+  int incidencias
+) {
+  return Card(
+    elevation: 0, // Quitamos la sombra predeterminada del Card
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
-      ),
-      elevation: 10,
-      shadowColor: shadowColor,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                "Estadísticas Semanales",
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text("Horas Totales:"),
-                  Text("${horas.toStringAsFixed(1)} h"),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text("Días trabajados:"),
-                  Text("$dias"),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text("Incidencias:"),
-                  Text("$incidencias"),
-                ],
-              ),
-            ],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.3),
+            blurRadius: 12,
+            spreadRadius: 2,
+            offset: Offset(0, 4),
           ),
+        ],
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Estadísticas Semanales",
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text("Horas Totales:"),
+                Text("${horas.toStringAsFixed(1)} h"),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text("Días trabajados:"),
+                Text("$dias"),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text("Incidencias:"),
+                Text("$incidencias"),
+              ],
+            ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }

@@ -27,12 +27,21 @@ class RegistrarActividad extends StatelessWidget {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          elevation: 10,
+          elevation: 0,
           shadowColor: shadowColor,
           child: Container(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-            ),
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.3),
+            blurRadius: 12,
+            spreadRadius: 2,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
             child: Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
