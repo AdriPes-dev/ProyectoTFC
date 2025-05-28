@@ -1,3 +1,4 @@
+import 'package:fichi/components/custom_snackbar.dart';
 import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/screens/pantallaregistrarincidencia.dart';
 import 'package:fichi/theme/appcolors.dart';
@@ -17,10 +18,21 @@ Widget build(BuildContext context) {
 
   return GestureDetector(
   onTap: () {
-    Navigator.push(
+
+    if (p.empresaCif != null && p.empresaCif!.isNotEmpty) {
+           Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => RegistrarIncidencia(persona: p)),
     );
+          } else {
+           CustomSnackbar.mostrar(
+              context,
+              'Se necesita una empresa para registrar incidencias',
+              icono: Icons.warning_amber_rounded,
+              texto: Colors.orange,
+            );
+          }
+    
   },
   child: Card(
   elevation: 0, // Quitamos la sombra por defecto

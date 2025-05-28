@@ -210,7 +210,9 @@ class _TimeTrackerState extends State<TimeTracker> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Expanded(child: FilledButton.icon(
-              onPressed: _isClockedIn ? null : _clockIn,
+              onPressed: (!_isClockedIn && widget.persona.empresaCif != null && widget.persona.empresaCif!.isNotEmpty) 
+              ? _clockIn 
+              : null,
               icon: Icon(Icons.play_arrow , color: textColor,),
               label: Text('Entrada', style: TextStyle( color: textColor),),
               style: FilledButton.styleFrom(

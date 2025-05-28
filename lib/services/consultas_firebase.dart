@@ -368,29 +368,51 @@ Future<void> actualizarEmpresa(Empresa empresa) async {
 Future<void> eliminarEmpresa(String cifEmpresa) async {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-  // 1. Obtener todos los empleados que pertenecen a la empresa
+  // 1. Actualizar personas que pertenecen a la empresa
   final empleadosSnapshot = await firestore
       .collection('personas')
       .where('empresaCif', isEqualTo: cifEmpresa)
       .get();
 
-  // 2. Actualizar el campo empresaCif a null en cada uno
   for (var doc in empleadosSnapshot.docs) {
     await firestore.collection('personas').doc(doc.id).update({
       'empresaCif': null,
-      'esJefe' : false,
+      'esJefe': false,
     });
   }
+
+  // 2. Eliminar todos los documentos relacionados
+
+  Future<void> eliminarColeccionPorCampo(
+    String coleccion,
+    String campo,
+    String valor,
+  ) async {
+    final snapshot = await firestore
+        .collection(coleccion)
+        .where(campo, isEqualTo: valor)
+        .get();
+
+    for (var doc in snapshot.docs) {
+      await firestore.collection(coleccion).doc(doc.id).delete();
+    }
+  }
+
+  await eliminarColeccionPorCampo('fichajes', 'cifEmpresa', cifEmpresa);
+  await eliminarColeccionPorCampo('incidencias', 'cifEmpresa', cifEmpresa);
+  await eliminarColeccionPorCampo('actividades', 'empresaCif', cifEmpresa);
+  await eliminarColeccionPorCampo('solicitudesIngreso', 'empresaCif', cifEmpresa);
 
   // 3. Eliminar la empresa
   await firestore.collection('empresas').doc(cifEmpresa).delete();
 }
 
- Future<Map<String, dynamic>> obtenerEstadisticasFichajes(String dniEmpleado) async {
+ Future<Map<String, dynamic>> obtenerEstadisticasFichajes(String dniEmpleado,String cifEmpresa) async {
   try {
     final fichajesSnapshot = await _db
         .collection('fichajes')
         .where('dniEmpleado', isEqualTo: dniEmpleado)
+        .where('cifEmpresa', isEqualTo: cifEmpresa)
         .get();
 
     final fichajes = fichajesSnapshot.docs.map((doc) => doc.data()).toList();
@@ -412,6 +434,7 @@ Future<void> eliminarEmpresa(String cifEmpresa) async {
     final incidenciasSnapshot = await _db
         .collection('incidencias')
         .where('dniEmpleado', isEqualTo: dniEmpleado)
+        .where('cifEmpresa', isEqualTo: cifEmpresa)
         .get();
 
     final incidencias = incidenciasSnapshot.docs.map((doc) => doc.data()).toList();
@@ -427,7 +450,7 @@ Future<void> eliminarEmpresa(String cifEmpresa) async {
   }
 }
 
-Future<Map<String, dynamic>> obtenerEstadisticasFichajesUltimoMes(String dniEmpleado) async {
+Future<Map<String, dynamic>> obtenerEstadisticasFichajesUltimoMes(String dniEmpleado, String cifEmpresa) async {
   try {
     final ahora = DateTime.now();
     final inicioMes = ahora.subtract(const Duration(days: 30));
@@ -435,6 +458,7 @@ Future<Map<String, dynamic>> obtenerEstadisticasFichajesUltimoMes(String dniEmpl
     final fichajesSnapshot = await _db
         .collection('fichajes')
         .where('dniEmpleado', isEqualTo: dniEmpleado)
+        .where('cifEmpresa', isEqualTo: cifEmpresa)
         .get();
 
     final fichajes = fichajesSnapshot.docs
@@ -460,6 +484,7 @@ Future<Map<String, dynamic>> obtenerEstadisticasFichajesUltimoMes(String dniEmpl
     final incidenciasSnapshot = await _db
         .collection('incidencias')
         .where('dniEmpleado', isEqualTo: dniEmpleado)
+        .where('cifEmpresa', isEqualTo: cifEmpresa)
         .get();
 
     final incidencias = incidenciasSnapshot.docs
@@ -492,7 +517,7 @@ Future<Map<String, dynamic>> obtenerEstadisticasFichajesUltimoMes(String dniEmpl
   }
 }
 
-  Future<Map<String, dynamic>> obtenerEstadisticasFichajesUltimaSemana(String dniEmpleado) async {
+  Future<Map<String, dynamic>> obtenerEstadisticasFichajesUltimaSemana(String dniEmpleado, String cifEmpresa) async {
   try {
     final ahora = DateTime.now();
     final inicioSemana = ahora.subtract(Duration(days: ahora.weekday - 1));
@@ -501,6 +526,7 @@ Future<Map<String, dynamic>> obtenerEstadisticasFichajesUltimoMes(String dniEmpl
     final fichajesSnapshot = await _db
         .collection('fichajes')
         .where('dniEmpleado', isEqualTo: dniEmpleado)
+        .where('cifEmpresa', isEqualTo: cifEmpresa)
         .get();
 
     final fichajes = fichajesSnapshot.docs
@@ -525,6 +551,7 @@ Future<Map<String, dynamic>> obtenerEstadisticasFichajesUltimoMes(String dniEmpl
     final incidenciasSnapshot = await _db
         .collection('incidencias')
         .where('dniEmpleado', isEqualTo: dniEmpleado)
+        .where('cifEmpresa', isEqualTo: cifEmpresa)
         .get();
 
     final incidencias = incidenciasSnapshot.docs

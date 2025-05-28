@@ -1,3 +1,4 @@
+import 'package:fichi/components/custom_snackbar.dart';
 import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/screens/pantallaregistraractividad.dart';
 import 'package:fichi/theme/appcolors.dart';
@@ -21,7 +22,21 @@ class RegistrarActividad extends StatelessWidget {
     return Expanded(
       child: GestureDetector(
         onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (_) => CrearActividadScreen(persona: p,)));
+          if (p.empresaCif != null && p.empresaCif!.isNotEmpty) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => CrearActividadScreen(persona: p),
+              ),
+            );
+          } else {
+           CustomSnackbar.mostrar(
+                          context,
+                          'Se necesita una empresa para registrar actividades',
+                          icono: Icons.warning_amber_rounded,
+                          texto: Colors.orange,
+                        );
+          }
         },
         child: Card(
           shape: RoundedRectangleBorder(

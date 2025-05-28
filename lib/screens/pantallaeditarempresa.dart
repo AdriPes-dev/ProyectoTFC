@@ -76,12 +76,12 @@ void _mostrarDialogoEliminarEmpresa() {
         content: const Text("¿Estás seguro de que deseas eliminar esta empresa?"),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(), // Cierra el diálogo usando dialogContext
+            onPressed: () => Navigator.of(dialogContext).pop(),
             child: const Text("Cancelar"),
           ),
           TextButton(
             onPressed: () async {
-              Navigator.of(dialogContext).pop(); // Cierra el diálogo primero
+              Navigator.of(dialogContext).pop();
 
               setState(() {
                 _isLoading = true;

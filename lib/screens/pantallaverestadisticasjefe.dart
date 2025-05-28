@@ -15,8 +15,8 @@ class PantallaEstadisticasEmpleados extends StatelessWidget {
     required this.empleados,
   });
 
-  Future<Map<String, dynamic>> obtenerEstadisticas(String dniEmpleado) async {
-    return await FirebaseService().obtenerEstadisticasFichajesUltimaSemana(dniEmpleado);
+  Future<Map<String, dynamic>> obtenerEstadisticas(String dniEmpleado,String cifEmpresa) async {
+    return await FirebaseService().obtenerEstadisticasFichajesUltimaSemana(dniEmpleado,cifEmpresa);
   }
 
   Widget _buildEstadisticaCard(Persona persona, Map<String, dynamic> datos) {
@@ -69,7 +69,7 @@ class PantallaEstadisticasEmpleados extends StatelessWidget {
 
   Widget _buildPersonaConEstadisticas(Persona persona) {
     return FutureBuilder<Map<String, dynamic>>(
-      future: obtenerEstadisticas(persona.dni),
+      future: obtenerEstadisticas(persona.dni,persona.empresaCif!),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Padding(

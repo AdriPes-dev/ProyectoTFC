@@ -1,3 +1,4 @@
+import 'package:fichi/model_classes/persona.dart';
 import 'package:fichi/screens/pantallaverestadisticas.dart';
 import 'package:fichi/services/consultas_firebase.dart';
 import 'package:flutter/material.dart';
@@ -14,57 +15,86 @@ class CartelEstadisticas extends StatelessWidget {
     final shadowColor = isDarkMode ? Colors.white : Colors.black;
 
     return Expanded(
-      child: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _obtenerTodasLasEstadisticas(dniEmpleado),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
+      child: FutureBuilder<Persona?>(
+        future: FirebaseService().obtenerPersonaPorDni(dniEmpleado),
+        builder: (context, personaSnapshot) {
+          if (personaSnapshot.connectionState == ConnectionState.waiting) {
             return _buildShimmerLoading(context);
           }
 
-          if (!snapshot.hasData || snapshot.data == null || snapshot.data!.length != 3) {
-            return const Text("No se encontraron estadísticas.");
+          if (!personaSnapshot.hasData || personaSnapshot.data == null) {
+            return const Text("No se encontró la persona.");
           }
 
-          final statsSemanal = snapshot.data![0];
-          final statsMensual = snapshot.data![1];
-          final statsTotal = snapshot.data![2];
+          final persona = personaSnapshot.data!;
+          final cif = persona.empresaCif; // Acceso directo a la propiedad
 
-          return GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EstadisticasScreen(
-                    diasTrabajados: statsSemanal['diasTrabajados'],
-                    totalDias: 7,
-                    dias: statsSemanal['dias'] ?? List.filled(7, false),
-                    horasSemanales: statsSemanal['totalHoras'],
-                    horasMensuales: statsMensual['totalHoras'],
-                    horasTotales: statsTotal['totalHoras'],
-                    incidenciasSemanales: statsSemanal['incidencias'],
-                    incidenciasMensuales: statsMensual['incidencias'],
-                    incidenciasTotales: statsTotal['incidencias'],
-                  ),
+          // Si no tiene empresa, mostrar mensaje de no acceso
+          if (cif == null || cif.isEmpty) {
+            return _buildCardEstadisticas(
+              context,
+              shadowColor,
+              0,
+              0,
+              0,
+              mensaje: "No tienes acceso a las estadísticas sin estar registrado en una empresa",
+            );
+          }
+
+          // Si tiene empresa, obtener estadísticas
+          return FutureBuilder<List<Map<String, dynamic>>>(
+            future: _obtenerTodasLasEstadisticas(dniEmpleado,cif),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return _buildShimmerLoading(context);
+              }
+
+              if (!snapshot.hasData || snapshot.data == null || snapshot.data!.length != 3) {
+                return const Text("No se encontraron estadísticas.");
+              }
+
+              final statsSemanal = snapshot.data![0];
+              final statsMensual = snapshot.data![1];
+              final statsTotal = snapshot.data![2];
+
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EstadisticasScreen(
+                        diasTrabajados: statsSemanal['diasTrabajados'],
+                        totalDias: 7,
+                        dias: statsSemanal['dias'] ?? List.filled(7, false),
+                        horasSemanales: statsSemanal['totalHoras'],
+                        horasMensuales: statsMensual['totalHoras'],
+                        horasTotales: statsTotal['totalHoras'],
+                        incidenciasSemanales: statsSemanal['incidencias'],
+                        incidenciasMensuales: statsMensual['incidencias'],
+                        incidenciasTotales: statsTotal['incidencias'],
+                      ),
+                    ),
+                  );
+                },
+                child: _buildCardEstadisticas(
+                  context,
+                  shadowColor,
+                  statsSemanal['totalHoras'],
+                  statsSemanal['diasTrabajados'],
+                  statsSemanal['incidencias'],
                 ),
               );
             },
-            child: _buildCardEstadisticas(
-              context,
-              shadowColor,
-              statsSemanal['totalHoras'],
-              statsSemanal['diasTrabajados'],
-              statsSemanal['incidencias'],
-            ),
           );
         },
       ),
     );
   }
 
-  Future<List<Map<String, dynamic>>> _obtenerTodasLasEstadisticas(String dniEmpleado) async {
-    final semanal = await FirebaseService().obtenerEstadisticasFichajesUltimaSemana(dniEmpleado);
-    final mensual = await FirebaseService().obtenerEstadisticasFichajesUltimoMes(dniEmpleado);
-    final total = await FirebaseService().obtenerEstadisticasFichajes(dniEmpleado);
+  Future<List<Map<String, dynamic>>> _obtenerTodasLasEstadisticas(String dniEmpleado,String cifEmpresa) async {
+    final semanal = await FirebaseService().obtenerEstadisticasFichajesUltimaSemana(dniEmpleado,cifEmpresa);
+    final mensual = await FirebaseService().obtenerEstadisticasFichajesUltimoMes(dniEmpleado,cifEmpresa);
+    final total = await FirebaseService().obtenerEstadisticasFichajes(dniEmpleado,cifEmpresa);
     return [semanal, mensual, total];
   }
 
@@ -114,7 +144,7 @@ class CartelEstadisticas extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(4),
-                    ),
+                      ),
                     ),
                   ],
                 ),
@@ -127,67 +157,73 @@ class CartelEstadisticas extends StatelessWidget {
   }
 
   Widget _buildCardEstadisticas(
-  BuildContext context, 
-  Color shadowColor, 
-  double horas, 
-  int dias, 
-  int incidencias
-) {
-  return Card(
-    elevation: 0, // Quitamos la sombra predeterminada del Card
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(16),
-    ),
-    child: Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+    BuildContext context,
+    Color shadowColor,
+    double horas,
+    int dias,
+    int incidencias, {
+    String? mensaje,
+  }) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.blue.withOpacity(0.3),
-            blurRadius: 12,
-            spreadRadius: 2,
-            offset: Offset(0, 4),
-          ),
-        ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              "Estadísticas Semanales",
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text("Horas Totales:"),
-                Text("${horas.toStringAsFixed(1)} h"),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text("Días trabajados:"),
-                Text("$dias"),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text("Incidencias:"),
-                Text("$incidencias"),
-              ],
+      child: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.blue.withOpacity(0.3),
+              blurRadius: 12,
+              spreadRadius: 2,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: mensaje != null
+              ? Center(
+                  child: Text(
+                    mensaje, 
+                    style: Theme.of(context).textTheme.bodyMedium,
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("Estadísticas Semanales", style: Theme.of(context).textTheme.titleMedium),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text("Horas Totales:"),
+                        Text("${horas.toStringAsFixed(1)} h"),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text("Días trabajados:"),
+                        Text("$dias"),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text("Incidencias:"),
+                        Text("$incidencias"),
+                      ],
+                    ),
+                  ],
+                ),
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 }
