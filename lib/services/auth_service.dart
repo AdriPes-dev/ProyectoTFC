@@ -4,7 +4,7 @@ import 'package:fichi/model_classes/persona.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   FirebaseFirestore get firestore => _firestore;
 

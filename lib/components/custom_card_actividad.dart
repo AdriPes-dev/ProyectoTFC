@@ -1,6 +1,6 @@
 import 'package:fichi/components/custom_snackbar.dart';
 import 'package:fichi/model_classes/persona.dart';
-import 'package:fichi/screens/pantallaregistraractividad.dart';
+import 'package:fichi/screens/pantalla_registrar_actividad.dart';
 import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/material.dart';
 

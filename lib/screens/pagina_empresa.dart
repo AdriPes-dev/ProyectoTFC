@@ -1,18 +1,18 @@
 import 'package:fichi/model_classes/empresa.dart';
-import 'package:fichi/screens/pantallaeditarempresa.dart';
-import 'package:fichi/screens/pantallaeliminarempleados.dart';
-import 'package:fichi/screens/pantallahistorialactividades.dart';
-import 'package:fichi/screens/pantallahistorialincidencias.dart';
-import 'package:fichi/screens/pantallaveractividadespendientes.dart';
-import 'package:fichi/screens/pantallaverestadisticasjefe.dart';
-import 'package:fichi/screens/pantallaverincindencias.dart';
-import 'package:fichi/screens/pantallaversolicitudesunion.dart';
+import 'package:fichi/screens/pantalla_editar_empresa.dart';
+import 'package:fichi/screens/pantalla_eliminar_empleados.dart';
+import 'package:fichi/screens/pantalla_historial_actividades.dart';
+import 'package:fichi/screens/pantalla_historial_incidencias.dart';
+import 'package:fichi/screens/pantalla_ver_actividades_pendientes.dart';
+import 'package:fichi/screens/pantalla_ver_estadisticas_jefe.dart';
+import 'package:fichi/screens/pantalla_ver_incindencias.dart';
+import 'package:fichi/screens/pantalla_ver_solicitudes_union.dart';
 import 'package:fichi/services/consultas_firebase.dart';
 import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/material.dart';
 import 'package:fichi/model_classes/persona.dart';
-import 'package:fichi/screens/crearempresa.dart';
-import 'package:fichi/screens/unirseempresa.dart';
+import 'package:fichi/screens/pantalla_crear_empresa.dart';
+import 'package:fichi/screens/pantalla_unirse_empresa.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class PantallaEmpresa extends StatefulWidget {

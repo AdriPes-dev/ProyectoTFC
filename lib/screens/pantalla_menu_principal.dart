@@ -1,9 +1,9 @@
 
 import 'package:fichi/main.dart';
 import 'package:fichi/model_classes/persona.dart';
-import 'package:fichi/screens/paginaprincipal.dart';
-import 'package:fichi/screens/pantallaempresa.dart';
-import 'package:fichi/screens/paginaperfil.dart';
+import 'package:fichi/screens/pagina_principal.dart';
+import 'package:fichi/screens/pagina_empresa.dart';
+import 'package:fichi/screens/pagina_perfil.dart';
 import 'package:fichi/theme/appcolors.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';

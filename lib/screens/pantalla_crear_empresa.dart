@@ -39,8 +39,11 @@ class _CrearEmpresaScreenState extends State<CrearEmpresaScreen> {
                 controller: _cifController,
                 decoration: InputDecoration(labelText: 'CIF'),
                 validator: (value) {
+                  final pattern = RegExp(r'^[A-HJNP-SUVW]\d{8}$');
                   if (value == null || value.isEmpty) {
                     return 'Ingrese el CIF de la empresa';
+                  }else if (!pattern.hasMatch(value)) {
+                    return 'CIF inválido. Debe comenzar con una letra y seguir con 8 dígitos.';
                   }
                   return null;
                 },
@@ -58,14 +61,37 @@ class _CrearEmpresaScreenState extends State<CrearEmpresaScreen> {
               TextFormField(
                 controller: _sectorController,
                 decoration: InputDecoration(labelText: 'Sector'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Ingrese el sector de la empresa';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                 controller: _direccionController,
                 decoration: InputDecoration(labelText: 'Dirección'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Ingrese la dirección de la empresa';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                 controller: _telefonoController,
                 decoration: InputDecoration(labelText: 'Teléfono'),
+                keyboardType: TextInputType.phone,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Ingrese el número de teléfono';
+                  }
+                  final RegExp telefonoRegExp = RegExp(r'^[6789]\d{8}$');
+                  if (!telefonoRegExp.hasMatch(value)) {
+                    return 'Ingrese un teléfono válido (9 dígitos, empieza por 6, 7, 8 o 9)';
+                  }
+                  return null;
+                },
               ),
               TextFormField(
                 controller: _emailController,

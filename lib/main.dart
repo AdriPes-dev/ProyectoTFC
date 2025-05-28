@@ -1,8 +1,8 @@
 import 'package:fichi/firebase_options.dart';
 import 'package:fichi/model_classes/persona.dart';
-import 'package:fichi/screens/menuprincipal.dart';
-import 'package:fichi/screens/pantallalogin.dart';
-import 'package:fichi/screens/pantallaregistro.dart';
+import 'package:fichi/screens/pantalla_menu_principal.dart';
+import 'package:fichi/screens/pantalla_login.dart';
+import 'package:fichi/screens/pantalla_registro.dart';
 import 'package:fichi/services/consultas_firebase.dart';
 import 'package:fichi/theme/appcolors.dart';
 import 'package:firebase_core/firebase_core.dart';

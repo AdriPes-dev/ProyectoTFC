@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:fichi/components/bordesdegradados.dart';
+import 'package:fichi/components/bordes_degradados.dart';
 import 'package:fichi/theme/appcolors.dart';
 
 class CustomSnackbar {

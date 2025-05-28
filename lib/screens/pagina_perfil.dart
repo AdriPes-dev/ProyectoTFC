@@ -1,4 +1,4 @@
-import 'package:fichi/components/bordesdegradados.dart';
+import 'package:fichi/components/bordes_degradados.dart';
 import 'package:fichi/components/custom_snackbar.dart';
 import 'package:fichi/services/consultas_firebase.dart';
 import 'package:fichi/theme/appcolors.dart';

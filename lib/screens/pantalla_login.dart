@@ -1,8 +1,8 @@
-import 'package:fichi/components/bordesdegradados.dart';
+import 'package:fichi/components/bordes_degradados.dart';
 import 'package:fichi/components/custom_snackbar.dart';
-import 'package:fichi/components/textfieldcontrasenya.dart';
-import 'package:fichi/components/textfieldcorreo.dart';
-import 'package:fichi/screens/menuprincipal.dart';
+import 'package:fichi/components/textfield_contrasenya.dart';
+import 'package:fichi/components/textfield_correo.dart';
+import 'package:fichi/screens/pantalla_menu_principal.dart';
 import 'package:fichi/services/auth_service.dart';
 import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/cupertino.dart';

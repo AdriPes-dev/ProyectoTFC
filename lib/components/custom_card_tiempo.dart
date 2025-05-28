@@ -1,6 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:fichi/model_classes/persona.dart';
-import 'package:fichi/services/databasehelper.dart';
+import 'package:fichi/services/database_helper.dart';
 import 'package:fichi/model_classes/fichaje.dart';
 import 'package:fichi/theme/appcolors.dart';
 import 'package:flutter/material.dart';

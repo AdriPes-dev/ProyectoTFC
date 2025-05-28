@@ -1,5 +1,5 @@
 import 'package:fichi/model_classes/persona.dart';
-import 'package:fichi/screens/pantallaverestadisticas.dart';
+import 'package:fichi/screens/pantalla_ver_estadisticas.dart';
 import 'package:fichi/services/consultas_firebase.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';

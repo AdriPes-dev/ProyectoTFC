@@ -401,7 +401,7 @@ Future<void> eliminarEmpresa(String cifEmpresa) async {
   await eliminarColeccionPorCampo('fichajes', 'cifEmpresa', cifEmpresa);
   await eliminarColeccionPorCampo('incidencias', 'cifEmpresa', cifEmpresa);
   await eliminarColeccionPorCampo('actividades', 'empresaCif', cifEmpresa);
-  await eliminarColeccionPorCampo('solicitudesIngreso', 'empresaCif', cifEmpresa);
+  await eliminarColeccionPorCampo('solicitudes_ingreso', 'empresaCif', cifEmpresa);
 
   // 3. Eliminar la empresa
   await firestore.collection('empresas').doc(cifEmpresa).delete();
