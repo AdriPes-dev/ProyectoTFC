@@ -27,6 +27,7 @@ class _PantallaEditarEmpresaState extends State<PantallaEditarEmpresa> {
 
   bool _cambiosRealizados = false;
   bool _isLoading = false;
+  final _formKey = GlobalKey<FormState>(); // Añadido para validación
 
   @override
   void initState() {
@@ -42,6 +43,20 @@ class _PantallaEditarEmpresaState extends State<PantallaEditarEmpresa> {
     _telefonoController.addListener(_verificarCambios);
     _emailController.addListener(_verificarCambios);
     _sectorController.addListener(_verificarCambios);
+  }
+
+  // Función para validar número de teléfono
+  String? _validarTelefono(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Por favor ingrese un número de teléfono';
+    }
+    
+    // Expresión regular para validar teléfono español
+    final regex = RegExp(r'^(\+34\s?)?[6789]\d{2}(\s?\d{3}){2}$');
+    if (!regex.hasMatch(value)) {
+      return 'Ingrese un número de teléfono válido';
+    }
+    return null;
   }
 
   void _verificarCambios() {
@@ -67,70 +82,69 @@ class _PantallaEditarEmpresaState extends State<PantallaEditarEmpresa> {
     _sectorController.dispose();
     super.dispose();
   }
-void _mostrarDialogoEliminarEmpresa() {
-  showDialog(
-    context: context,
-    builder: (dialogContext) {
-      return AlertDialog(
-        title: const Text("Eliminar Empresa"),
-        content: const Text("¿Estás seguro de que deseas eliminar esta empresa?"),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text("Cancelar"),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.of(dialogContext).pop();
 
-              setState(() {
-                _isLoading = true;
-              });
+  void _mostrarDialogoEliminarEmpresa() {
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text("Eliminar Empresa"),
+          content: const Text("¿Estás seguro de que deseas eliminar esta empresa?"),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text("Cancelar"),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(dialogContext).pop();
+                setState(() {
+                  _isLoading = true;
+                });
 
-              try {
-                await FirebaseService().eliminarEmpresa(widget.empresa.cif);
+                try {
+                  await FirebaseService().eliminarEmpresa(widget.empresa.cif);
 
-                if (widget.empresa.jefeDni != null) {
-                  final personaActualizada = await FirebaseService().obtenerPersonaPorDni(widget.empresa.jefeDni!);
+                  if (widget.empresa.jefeDni != null) {
+                    final personaActualizada = await FirebaseService().obtenerPersonaPorDni(widget.empresa.jefeDni!);
 
-                  // Verifica que el widget sigue montado antes de navegar
-                  if (!mounted) return;
+                    if (!mounted) return;
 
-                  Navigator.of(context).pop(personaActualizada);
-                } else {
+                    Navigator.of(context).pop(personaActualizada);
+                  } else {
+                    if (!mounted) return;
+
+                    CustomSnackbar.mostrar(
+                      context,
+                      'No se pudo obtener el jefe de la empresa',
+                      icono: Icons.error_outline,
+                      texto: Colors.red,
+                    );
+                  }
+                } catch (e) {
                   if (!mounted) return;
 
                   CustomSnackbar.mostrar(
-                    context,
-                    'No se pudo obtener el jefe de la empresa',
-                    icono: Icons.error_outline,
-                    texto: Colors.red,
-                  );
-                }
-              } catch (e) {
-                if (!mounted) return;
-
-               CustomSnackbar.mostrar(
                     context,
                     'Error al eliminar la empresa: $e',
                     icono: Icons.error_outline,
                     texto: Colors.red,
                   );
-              } finally {
-                if (!mounted) return;
+                } finally {
+                  if (!mounted) return;
 
-                setState(() {
-                  _isLoading = false;
-                });
-              }
-            },
-            child: const Text("Eliminar"),
-          ),
-        ],
-      );
-    },
-  );
-}
+                  setState(() {
+                    _isLoading = false;
+                  });
+                }
+              },
+              child: const Text("Eliminar"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -147,48 +161,51 @@ void _mostrarDialogoEliminarEmpresa() {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text("Datos de Empresa", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 20),
-              _buildReadOnlyField("CIF", widget.empresa.cif),
-              _buildTextField("Nombre", _nombreController),
-              _buildTextField("Dirección", _direccionController),
-              _buildTextField("Teléfono", _telefonoController),
-              _buildTextField("Email", _emailController),
-              _buildTextField("Sector", _sectorController),
-              const SizedBox(height: 30),
-              Center(
-                child: CupertinoButton(
-                  onPressed: (_isLoading || !_cambiosRealizados) ? null : _guardarCambios,
-                  padding: EdgeInsets.zero,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: (_isLoading || !_cambiosRealizados)
-                          ? Border.all(color: Colors.grey, width: 2)
-                          : GradientBoxBorder(
-                              gradient: AppColors.mainGradient,
-                              width: 2,
+          child: Form(
+            key: _formKey, // Añadido para validación
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text("Datos de Empresa", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 20),
+                _buildReadOnlyField("CIF", widget.empresa.cif),
+                _buildTextField("Nombre", _nombreController),
+                _buildTextField("Dirección", _direccionController),
+                _buildPhoneField("Teléfono", _telefonoController), // Campo modificado para validación
+                _buildTextField("Email", _emailController),
+                _buildTextField("Sector", _sectorController),
+                const SizedBox(height: 30),
+                Center(
+                  child: CupertinoButton(
+                    onPressed: (_isLoading || !_cambiosRealizados) ? null : _guardarCambios,
+                    padding: EdgeInsets.zero,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: (_isLoading || !_cambiosRealizados)
+                            ? Border.all(color: Colors.grey, width: 2)
+                            : GradientBoxBorder(
+                                gradient: AppColors.mainGradient,
+                                width: 2,
+                              ),
+                      ),
+                      child: _isLoading
+                          ? const CircularProgressIndicator()
+                          : ShaderMask(
+                              shaderCallback: (bounds) => AppColors.mainGradient.createShader(bounds),
+                              blendMode: BlendMode.srcIn,
+                              child: const Text(
+                                "Guardar cambios",
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                              ),
                             ),
                     ),
-                    child: _isLoading
-                        ? const CircularProgressIndicator()
-                        : ShaderMask(
-                            shaderCallback: (bounds) => AppColors.mainGradient.createShader(bounds),
-                            blendMode: BlendMode.srcIn,
-                            child: const Text(
-                              "Guardar cambios",
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                            ),
-                          ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 80),
-            ],
+                const SizedBox(height: 80),
+              ],
+            ),
           ),
         ),
       ),
@@ -205,18 +222,39 @@ void _mostrarDialogoEliminarEmpresa() {
     );
   }
 
+  // Nuevo método para campo de teléfono con validación
+  Widget _buildPhoneField(String label, TextEditingController controller) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: TextFormField(
+        controller: controller,
+        decoration: InputDecoration(
+          labelText: label,
+          hintText: 'Ej: +34 612 345 678',
+        ),
+        keyboardType: TextInputType.phone,
+        validator: _validarTelefono,
+      ),
+    );
+  }
+
   Widget _buildReadOnlyField(String label, String value) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 20),
-    child: TextFormField(
-      initialValue: value,
-      enabled: false,
-      decoration: InputDecoration(labelText: label),
-    ),
-  );
-}
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 20),
+      child: TextFormField(
+        initialValue: value,
+        enabled: false,
+        decoration: InputDecoration(labelText: label),
+      ),
+    );
+  }
 
   Future<void> _guardarCambios() async {
+    // Validar el formulario antes de guardar
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
@@ -234,11 +272,11 @@ void _mostrarDialogoEliminarEmpresa() {
 
       await FirebaseService().actualizarEmpresa(empresaActualizada);
       CustomSnackbar.mostrar(
-          context,
-          'Empresa actualizada correctamente',
-          icono: Icons.check_circle,
-          texto: Colors.green,
-        );
+        context,
+        'Empresa actualizada correctamente',
+        icono: Icons.check_circle,
+        texto: Colors.green,
+      );
       setState(() {
         _cambiosRealizados = false;
       });

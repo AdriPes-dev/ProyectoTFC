@@ -138,7 +138,7 @@ if (!validarTelefono(_telefonoController.text.trim())) {
 }
 
 bool validarTelefono(String telefono) {
-  final telefonoRegExp = RegExp(r'^[6789]\d{8}$');
+  final telefonoRegExp = RegExp(r'^(\+34\s?)?[6789]\d{2}(\s?\d{3}){2}$');
   return telefonoRegExp.hasMatch(telefono);
 }
 

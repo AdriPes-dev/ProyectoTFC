@@ -21,6 +21,7 @@ class _PantallaPerfilState extends State<PantallaPerfil> {
   late TextEditingController _apellidosController;
   late TextEditingController _telefonoController;
   late Persona _personaEditable;
+  String? _errorTelefono;
 
 
 bool _cambiosRealizados = false;
@@ -51,15 +52,17 @@ void dispose() {
 }
 
 void _verificarCambios() {
-  bool cambios = _nombreController.text != widget.persona.nombre ||
-                 _apellidosController.text != widget.persona.apellidos ||
-                 _telefonoController.text != widget.persona.telefono;
+  final telefonoValido = RegExp(r'^(\+34\s?)?[6789]\d{2}(\s?\d{3}){2}$').hasMatch(_telefonoController.text);
 
-  if (_cambiosRealizados != cambios) {
-    setState(() {
-      _cambiosRealizados = cambios;
-    });
-  }
+  setState(() {
+    _errorTelefono = telefonoValido || _telefonoController.text.isEmpty
+        ? null
+        : 'Número inválido (9 dígitos, empieza por 6, 7, 8 o 9) y español (+34 opcional)';
+
+    _cambiosRealizados = _nombreController.text != widget.persona.nombre ||
+                         _apellidosController.text != widget.persona.apellidos ||
+                         _telefonoController.text != widget.persona.telefono;
+  });
 }
 
   @override
@@ -133,12 +136,14 @@ void _verificarCambios() {
           _buildTextFieldN("DNI", _personaEditable.dni),
           _buildTextField("Nombre", _nombreController),
           _buildTextField("Apellidos", _apellidosController),
-          _buildTextField("Teléfono", _telefonoController),
+          _buildTextField("Teléfono", _telefonoController, errorText: _errorTelefono),
           SizedBox(height: 20),
           Center(
   child: CupertinoButton(
     padding: EdgeInsets.zero,
-    onPressed: (_isLoading || !_cambiosRealizados) ? null : _actualizarDatosUsuario,
+    onPressed: (_isLoading || !_cambiosRealizados || _errorTelefono != null)
+    ? null
+    : _actualizarDatosUsuario,
     child: Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       decoration: BoxDecoration(
@@ -186,13 +191,15 @@ void _verificarCambios() {
     );
   }
 
- Widget _buildTextField(String label, TextEditingController controller) {
+Widget _buildTextField(String label, TextEditingController controller, {String? errorText}) {
   return Padding(
     padding: const EdgeInsets.all(20.0),
     child: TextField(
       controller: controller,
+      keyboardType: label == "Teléfono" ? TextInputType.phone : TextInputType.text,
       decoration: InputDecoration(
         labelText: label,
+        errorText: errorText,
       ),
     ),
   );

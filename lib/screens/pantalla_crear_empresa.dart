@@ -86,9 +86,9 @@ class _CrearEmpresaScreenState extends State<CrearEmpresaScreen> {
                   if (value == null || value.isEmpty) {
                     return 'Ingrese el número de teléfono';
                   }
-                  final RegExp telefonoRegExp = RegExp(r'^[6789]\d{8}$');
+                  final RegExp telefonoRegExp = RegExp(r'^(\+34\s?)?[6789]\d{2}(\s?\d{3}){2}$');
                   if (!telefonoRegExp.hasMatch(value)) {
-                    return 'Ingrese un teléfono válido (9 dígitos, empieza por 6, 7, 8 o 9)';
+                    return 'Número inválido (9 dígitos, empieza por 6, 7, 8 o 9) y español (+34 opcional)';
                   }
                   return null;
                 },
