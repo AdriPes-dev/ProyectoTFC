@@ -37,6 +37,15 @@ class _ExpulsarEmpleadoScreenState extends State<ExpulsarEmpleadoScreen> {
       'empresaCif': null,
     });
 
+    final snapshot = await FirebaseFirestore.instance
+      .collection('solicitudes_ingreso')
+      .where('dni', isEqualTo: persona.dni)
+      .get();
+
+      for (var doc in snapshot.docs) {
+        await doc.reference.update({'aceptada': false});
+      }
+
     CustomSnackbar.mostrar(
       context,
       '${persona.nombre} ha sido expulsado.',
