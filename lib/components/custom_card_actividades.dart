@@ -29,39 +29,40 @@ class _ActividadRecienteCardState extends State<ActividadRecienteCard> with Tick
   }
 
   Future<void> _cargarActividades() async {
-    final empresaCif = widget.p.empresaCif;
+  final empresaCif = widget.p.empresaCif;
 
-    if (empresaCif == null) {
-      setState(() {
-        _sinEmpresa = true; // Indicamos que no hay empresa
-        _actividades = [];
-        _offsets.clear();
-        _cardColors.clear();
-      });
-      return;
-    }
-
-    final actividades = await _firebaseService.obtenerActividadesFuturas(empresaCif);
-
+  if (empresaCif == null) {
+    if (!mounted) return; // Verifica si el widget sigue montado
     setState(() {
-      _sinEmpresa = false; // Hay empresa
-      _actividades = actividades;
+      _sinEmpresa = true;
+      _actividades = [];
       _offsets.clear();
-      _offsets.addAll(List.filled(_actividades.length, Offset.zero));
-
       _cardColors.clear();
-      for (int i = 0; i < actividades.length; i++) {
-        final t = actividades.length > 1 ? i / (actividades.length - 1) : 0.0;
-        final color = Color.lerp(
-          AppColors.primaryBlue,
-          AppColors.gradientPurple,
-          t,
-        )!.withOpacity(0.9);
-        _cardColors.add(color);
-      }
     });
+    return;
   }
 
+  final actividades = await _firebaseService.obtenerActividadesFuturas(empresaCif);
+
+  if (!mounted) return; // Verifica si el widget sigue montado
+  setState(() {
+    _sinEmpresa = false;
+    _actividades = actividades;
+    _offsets.clear();
+    _offsets.addAll(List.filled(_actividades.length, Offset.zero));
+
+    _cardColors.clear();
+    for (int i = 0; i < actividades.length; i++) {
+      final t = actividades.length > 1 ? i / (actividades.length - 1) : 0.0;
+      final color = Color.lerp(
+        AppColors.primaryBlue,
+        AppColors.gradientPurple,
+        t,
+      )!.withOpacity(0.9);
+      _cardColors.add(color);
+    }
+  });
+}
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
