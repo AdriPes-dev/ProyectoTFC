@@ -67,7 +67,7 @@ void _verificarCambios() {
 
   @override
   Widget build(BuildContext context) {
-    final Color _colorLetra = Theme.of(context).brightness == Brightness.dark
+    final Color colorLetra = Theme.of(context).brightness == Brightness.dark
       ? Colors.white
       : Colors.black;
     return SingleChildScrollView(
@@ -101,7 +101,7 @@ void _verificarCambios() {
         widget.persona.nombre[0].toUpperCase(),
         style: TextStyle(
           fontSize: 40,
-          color: _colorLetra,
+          color: colorLetra,
         ),
       ),
     ),
@@ -114,7 +114,7 @@ void _verificarCambios() {
         style: TextStyle(
           fontWeight: FontWeight.bold,
           fontSize: 25,
-          color: _colorLetra
+          color: colorLetra
         ),
       ),
     ),

@@ -34,7 +34,6 @@ class _TimeTrackerState extends State<TimeTracker> {
   void _listenToConnectivityChanges() {
   Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> result) async {
     if (result.isNotEmpty && result.first != ConnectivityResult.none) {
-      print("Conexión recuperada, sincronizando fichajes...");
       await DatabaseHelper.instance.sincronizarFichajesPendientes();
     }
   });

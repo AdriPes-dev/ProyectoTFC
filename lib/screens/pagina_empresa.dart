@@ -433,7 +433,7 @@ Widget _buildSkeletonPersona() {
             child: Text('No hay otros empleados registrados'),
           )
         else
-          ..._empleados.map((e) => _buildTarjetaPersona(e)).toList(),
+          ..._empleados.map((e) => _buildTarjetaPersona(e)),
       ],
     );
   }
@@ -507,7 +507,6 @@ Widget _buildSkeletonPersona() {
   if (await canLaunchUrl(url)) {
     await launchUrl(url);
   } else {
-    print('No se pudo realizar la llamada');
   }
 }
 

@@ -19,11 +19,9 @@ class FirebaseService {
         Map<String, dynamic> data = doc.data()!;
         return Empresa.fromMap(data);
       } else {
-        print("Empresa con CIF $cif no encontrada.");
         return null;
       }
     } catch (e) {
-      print("Error al obtener empresa por CIF: $e");
       return null;
     }
   }
@@ -40,7 +38,6 @@ class FirebaseService {
       return Persona.fromMap(data);
     }).toList();
   } catch (e) {
-    print("Error obteniendo empleados de la empresa $empresaCif: $e");
     return [];
   }
 }
@@ -59,7 +56,6 @@ class FirebaseService {
     final data = snapshot.docs.first.data();
     return Persona.fromMap(data);
   } catch (e) {
-    print("Error al obtener persona por DNI: $e");
     return null;
   }
 }
@@ -77,9 +73,7 @@ Future<void> guardarIncidenciaEnFirestore(Incidencia incidencia) async {
       'estado': incidencia.estado,
       'fechaReporte': incidencia.fechaReporte.toIso8601String(),
     });
-    print('Incidencia guardada correctamente.');
   } catch (e) {
-    print('Error al guardar la incidencia: $e');
     rethrow;
   }
 }
@@ -106,7 +100,6 @@ Future<List<Incidencia>> obtenerIncidenciasPorEmpresa(String cifEmpresa) async {
       );
     }).toList();
   } catch (e) {
-    print("Error al obtener incidencias de la empresa $cifEmpresa: $e");
     return [];
   }
 }
@@ -132,7 +125,6 @@ Future<List<Incidencia>> obtenerIncidenciasPendientesPorEmpresa(String cifEmpres
       );
     }).toList();
   } catch (e) {
-    print('Error al obtener incidencias pendientes: $e');
     return [];
   }
 }
@@ -158,7 +150,6 @@ Future<List<Incidencia>> obtenerIncidenciasLeidasPorEmpresa(String cifEmpresa) a
       );
     }).toList();
   } catch (e) {
-    print('Error al obtener incidencias leídas: $e');
     return [];
   }
 }
@@ -177,9 +168,7 @@ Future<List<Incidencia>> obtenerIncidenciasLeidasPorEmpresa(String cifEmpresa) a
         'fechaActividad': actividad.fechaActividad.toIso8601String(),
         'aceptada': actividad.aceptada,
       });
-      print('Actividad guardada correctamente.');
     } catch (e) {
-      print('Error al guardar la actividad: $e');
       rethrow;
     }
   }
@@ -196,9 +185,7 @@ Future<List<Incidencia>> obtenerIncidenciasLeidasPorEmpresa(String cifEmpresa) a
       'aceptada': solicitud.aceptada, // puede ser null al momento de crear
     });
 
-    print('Solicitud de ingreso guardada correctamente.');
   } catch (e) {
-    print('Error al guardar la solicitud de ingreso: $e');
     rethrow;
   }
 }
@@ -266,7 +253,6 @@ Future<void> agregarUsuarioAEmpresa(String dniSolicitante, String empresaCif) as
             .update({'aceptada': true}); // Marcar como aceptada
       }
     } catch (e) {
-      print("Error al agregar usuario a la empresa: $e");
       rethrow; // Relanzar el error si es necesario
     }
   }
@@ -342,9 +328,7 @@ Future<List<Actividad>> obtenerActividades(String empresaCif) async {
         .collection('personas')
         .doc(persona.dni)
         .update(persona.toMap());
-    print("Persona actualizada correctamente.");
   } catch (e) {
-    print("Error al actualizar persona: $e");
     rethrow;
   }
 }

@@ -41,7 +41,6 @@ class AuthService {
       empresaCif: userData['empresaCif'],
     );
   } catch (e) {
-    print("Error en inicio de sesión: $e");
     rethrow;
   }
 }
@@ -78,7 +77,6 @@ Future<void> crearEmpresa({
       'esJefe': true,
     });
   } catch (e) {
-    print("Error creando empresa: $e");
     rethrow;
   }
 }
@@ -112,7 +110,6 @@ Future<void> crearEmpresa({
 
       return userCredential.user;
     } catch (e) {
-      print("Error registrando usuario: $e");
       rethrow;
     }
   }

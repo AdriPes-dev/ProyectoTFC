@@ -114,7 +114,7 @@ class PantallaEstadisticasEmpleados extends StatelessWidget {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
-          ...empleados.map((empleado) => _buildPersonaConEstadisticas(empleado)).toList(),
+          ...empleados.map((empleado) => _buildPersonaConEstadisticas(empleado)),
         ],
       ),
     );

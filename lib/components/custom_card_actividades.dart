@@ -8,7 +8,7 @@ import 'package:fichi/services/consultas_firebase.dart';
 class ActividadRecienteCard extends StatefulWidget {
   final Persona p;
 
-  const ActividadRecienteCard({Key? key, required this.p}) : super(key: key);
+  const ActividadRecienteCard({super.key, required this.p});
 
   @override
   State<ActividadRecienteCard> createState() => _ActividadRecienteCardState();

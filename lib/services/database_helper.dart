@@ -72,9 +72,7 @@ class DatabaseHelper {
 
       await docRef.set(fichaje.toJson());
 
-      print('Fichaje guardado en Firestore correctamente.');
     } catch (e) {
-      print('Error al guardar fichaje en Firestore: $e');
       rethrow;
     }
   }
@@ -99,13 +97,10 @@ class DatabaseHelper {
 
       await insertarFichaje(fichajeSincronizado);
 
-      print("Fichaje guardado en Firestore.");
     } catch (e) {
-      print("Error al guardar en Firestore. Guardando en local.");
       await insertarFichaje(fichaje); // Se guarda con sincronizado: false
     }
   } else {
-    print("Sin conexión. Guardando fichaje en local.");
     await insertarFichaje(fichaje); // Se guarda con sincronizado: false
   }
 }
@@ -147,7 +142,7 @@ class DatabaseHelper {
         await guardarFichajeEnFirestore(fichaje);
         await marcarFichajeComoSincronizado(fichaje.id);
       } catch (e) {
-        print("Error sincronizando fichaje ${fichaje.id}: $e");
+        
       }
     }
   }

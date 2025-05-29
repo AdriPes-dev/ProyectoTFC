@@ -1,6 +1,6 @@
 import 'package:fichi/components/custom_card_actividad.dart';
 import 'package:fichi/components/custom_card_actividades.dart';
-import 'package:fichi/components/custom_card_estadísticas.dart';
+import 'package:fichi/components/custom_card_estadisticas.dart';
 import 'package:fichi/components/custom_card_incidencia.dart';
 import 'package:fichi/components/custom_card_tiempo.dart';
 import 'package:fichi/model_classes/persona.dart';
