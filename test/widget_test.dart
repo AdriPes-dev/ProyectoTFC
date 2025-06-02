@@ -11,20 +11,36 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:fichi/main.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+  testWidgets('App shows login/register screen on startup', (WidgetTester tester) async {
     await tester.pumpWidget(const MyApp());
+    // Busca textos comunes en login o registro
+    expect(find.textContaining('Iniciar'), findsWidgets);
+    expect(find.textContaining('Registr'), findsWidgets);
+  });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+  testWidgets('Login screen has email and password fields', (WidgetTester tester) async {
+    await tester.pumpWidget(const MyApp());
+    // Busca campos de correo y contraseña
+    expect(find.byType(TextField), findsWidgets);
+    expect(find.widgetWithText(TextField, 'Correo electrónico'), findsOneWidget);
+    expect(find.widgetWithText(TextField, 'Contraseña'), findsOneWidget);
+  });
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+  testWidgets('Register button exists on login/registro screen', (WidgetTester tester) async {
+    await tester.pumpWidget(const MyApp());
+    expect(find.widgetWithText(ElevatedButton, 'Registrarse'), findsWidgets);
+  });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+  testWidgets('Main menu has navigation bar', (WidgetTester tester) async {
+    await tester.pumpWidget(const MyApp());
+    expect(find.byType(BottomNavigationBar), findsWidgets);
+  });
+
+  testWidgets('Widgets principales existen en PaginaPrincipal', (WidgetTester tester) async {
+    await tester.pumpWidget(const MyApp());
+    // Busca widgets clave por tipo o texto
+    expect(find.byType(Scaffold), findsWidgets);
+    expect(find.byType(SingleChildScrollView), findsWidgets);
+    expect(find.byType(Column), findsWidgets);
   });
 }

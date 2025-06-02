@@ -504,9 +504,15 @@ Future<Map<String, dynamic>> obtenerEstadisticasFichajesUltimoMes(String dniEmpl
   Future<Map<String, dynamic>> obtenerEstadisticasFichajesUltimaSemana(String dniEmpleado, String cifEmpresa) async {
   try {
     final ahora = DateTime.now();
-    final inicioSemana = ahora.subtract(Duration(days: ahora.weekday - 1));
+    
+    // Calcular el lunes de la semana actual
+    final inicioSemana = DateTime(ahora.year, ahora.month, ahora.day - (ahora.weekday - 1));
+    // Calcular el domingo de la semana actual (23:59:59)
     final finSemana = inicioSemana.add(const Duration(days: 7));
 
+    log('Rango semanal: ${inicioSemana.toIso8601String()} - ${finSemana.toIso8601String()}');
+
+    // Obtener fichajes
     final fichajesSnapshot = await _db
         .collection('fichajes')
         .where('dniEmpleado', isEqualTo: dniEmpleado)
@@ -516,22 +522,26 @@ Future<Map<String, dynamic>> obtenerEstadisticasFichajesUltimoMes(String dniEmpl
     final fichajes = fichajesSnapshot.docs
         .map((doc) => doc.data())
         .where((data) {
-          final entrada = DateTime.tryParse(data['entrada']);
+          final entrada = DateTime.tryParse(data['entrada'] ?? '');
           return entrada != null && entrada.isAfter(inicioSemana) && entrada.isBefore(finSemana);
         })
         .toList();
 
-    final diasTrabajadosSet = <int>{};
+    final diasTrabajadosSet = <DateTime>{};
     double totalHoras = 0;
 
     for (final fichaje in fichajes) {
-      final entrada = DateTime.parse(fichaje['entrada']);
+      final entrada = DateTime.tryParse(fichaje['entrada'] ?? '');
       final duracion = fichaje['duracion']; // en segundos
-      totalHoras += duracion / 3600.0;
-      diasTrabajadosSet.add(entrada.weekday); // lunes=1, ..., domingo=7
+
+      if (entrada != null && duracion != null) {
+        totalHoras += duracion / 3600.0;
+        // Usamos la fecha completa (sin hora) para contar días únicos
+        diasTrabajadosSet.add(DateTime(entrada.year, entrada.month, entrada.day));
+      }
     }
 
-    // Obtener incidencias también
+    // Obtener incidencias
     final incidenciasSnapshot = await _db
         .collection('incidencias')
         .where('dniEmpleado', isEqualTo: dniEmpleado)
@@ -541,28 +551,43 @@ Future<Map<String, dynamic>> obtenerEstadisticasFichajesUltimoMes(String dniEmpl
     final incidencias = incidenciasSnapshot.docs
         .map((doc) => doc.data())
         .where((data) {
-          final fecha = DateTime.tryParse(data['fechaReporte']);
+          final fecha = DateTime.tryParse(data['fechaReporte'] ?? '');
           return fecha != null && fecha.isAfter(inicioSemana) && fecha.isBefore(finSemana);
         })
         .toList();
 
-    // Generar lista de días trabajados: lunes (0) a domingo (6)
+    // Crear lista de 7 días (lunes a domingo) como bool
     final diasBool = List<bool>.filled(7, false);
-    for (var dia in diasTrabajadosSet) {
-      if (dia >= 1 && dia <= 7) diasBool[dia - 1] = true;
+    for (var i = 0; i < 7; i++) {
+      final diaSemana = inicioSemana.add(Duration(days: i));
+      final diaSinHora = DateTime(diaSemana.year, diaSemana.month, diaSemana.day);
+      diasBool[i] = diasTrabajadosSet.contains(diaSinHora);
     }
+
+    log('Fichajes encontrados: ${fichajes.length}');
+    log('Total horas: $totalHoras');
+    log('Días trabajados: ${diasTrabajadosSet.length}');
+    log('Incidencias encontradas: ${incidencias.length}');
 
     return {
       'totalHoras': totalHoras,
       'diasTrabajados': diasTrabajadosSet.length,
+      'totalDias': 7,
       'dias': diasBool,
       'incidencias': incidencias.length,
     };
   } catch (e) {
     log('Error al obtener estadísticas semanales: $e');
-    rethrow;
+    return {
+      'totalHoras': 0.0,
+      'diasTrabajados': 0,
+      'totalDias': 7,
+      'dias': List<bool>.filled(7, false),
+      'incidencias': 0,
+    };
   }
 }
+
 Future<void> expulsarEmpleadoDeEmpresa(String dni, String empresaCif) async {
   await FirebaseFirestore.instance.collection('personas')
     .where('dni', isEqualTo: dni)
