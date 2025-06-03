@@ -510,7 +510,6 @@ Future<Map<String, dynamic>> obtenerEstadisticasFichajesUltimoMes(String dniEmpl
     // Calcular el domingo de la semana actual (23:59:59)
     final finSemana = inicioSemana.add(const Duration(days: 7));
 
-    log('Rango semanal: ${inicioSemana.toIso8601String()} - ${finSemana.toIso8601String()}');
 
     // Obtener fichajes
     final fichajesSnapshot = await _db
@@ -563,11 +562,6 @@ Future<Map<String, dynamic>> obtenerEstadisticasFichajesUltimoMes(String dniEmpl
       final diaSinHora = DateTime(diaSemana.year, diaSemana.month, diaSemana.day);
       diasBool[i] = diasTrabajadosSet.contains(diaSinHora);
     }
-
-    log('Fichajes encontrados: ${fichajes.length}');
-    log('Total horas: $totalHoras');
-    log('Días trabajados: ${diasTrabajadosSet.length}');
-    log('Incidencias encontradas: ${incidencias.length}');
 
     return {
       'totalHoras': totalHoras,

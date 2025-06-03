@@ -127,6 +127,8 @@ class _PantallaIncidenciasEmpresaState extends State<PantallaIncidenciasEmpresa>
     log(incidencia.id);
     await _firebaseService.marcarIncidenciaComoLeida(incidencia.id);
     _mostrarMensaje('Incidencia marcada como leída');
+
+    await recargarIncidencias();
   } catch (e) {
     _mostrarError('No se pudo marcar como leída: $e');
   }

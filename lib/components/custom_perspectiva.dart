@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:intl/intl.dart';
@@ -316,28 +318,36 @@ class _TarjetaApilada extends StatelessWidget {
 
               // Botón (altura fija)
               SizedBox(
-                height: 48,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.calendar_today, size: 18),
-                  label: const Text(
-                    'Añadir al calendario',
-                    style: TextStyle(fontSize: 14),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: textColor,
-                    minimumSize: const Size(double.infinity, 48),
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                  ),
-                  onPressed: () => Add2Calendar.addEvent2Cal(
-                    Event(
-                      title: actividad.titulo,
-                      description: actividad.descripcion,
-                      startDate: actividad.fechaActividad,
-                      endDate: actividad.fechaActividad.add(const Duration(hours: 1)),
-                    ),
-                  ),
-                ),
-              ),
+  height: 48,
+  child: ElevatedButton.icon(
+    icon: const Icon(Icons.calendar_today, size: 18),
+    label: const Text(
+      'Añadir al calendario',
+      style: TextStyle(fontSize: 14),
+    ),
+    style: ElevatedButton.styleFrom(
+      foregroundColor: textColor,
+      minimumSize: const Size(double.infinity, 48),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+    ),
+    onPressed: () async {
+      try {
+        final event = Event(
+          title: actividad.titulo,
+          description: actividad.descripcion,
+          startDate: actividad.fechaActividad,
+          endDate: actividad.fechaActividad.add(const Duration(hours: 1)),
+        );
+        await Add2Calendar.addEvent2Cal(event);
+      } catch (e) {
+       log('Error al agregar evento: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('No se pudo agregar al calendario: $e')),
+        );
+      }
+    },
+  ),
+),
             ],
           ),
         ),
