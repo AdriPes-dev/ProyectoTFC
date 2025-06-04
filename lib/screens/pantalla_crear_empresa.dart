@@ -171,6 +171,19 @@ class _CrearEmpresaScreenState extends State<CrearEmpresaScreen> {
                         texto: Colors.green,
                       );
 
+                      // Eliminar solicitudes de ingreso sin estado aceptada (null)
+                      final solicitudesSnapshot = await FirebaseFirestore.instance
+                          .collection('solicitudes_ingreso')
+                          .where('dni', isEqualTo: widget.persona.dni)
+                          .where('aceptada', isNull: true)
+                          .get();
+
+                      for (final doc in solicitudesSnapshot.docs) {
+                        final data = doc.data();
+                        if (data.containsKey('aceptada') && data['aceptada'] == null) {
+                          await doc.reference.delete();
+                        }
+                      }
                       // Regresa a la pantalla anterior
                       Navigator.pop(context, widget.persona);
                     } catch (e) {
