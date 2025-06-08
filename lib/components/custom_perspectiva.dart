@@ -1,5 +1,7 @@
 import 'dart:developer';
+import 'dart:io';
 
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:add_2_calendar/add_2_calendar.dart';
 import 'package:intl/intl.dart';
@@ -331,21 +333,35 @@ class _TarjetaApilada extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
     ),
     onPressed: () async {
-      try {
-        final event = Event(
-          title: actividad.titulo,
-          description: actividad.descripcion,
-          startDate: actividad.fechaActividad,
-          endDate: actividad.fechaActividad.add(const Duration(hours: 1)),
-        );
-        await Add2Calendar.addEvent2Cal(event);
-      } catch (e) {
-       log('Error al agregar evento: $e');
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('No se pudo agregar al calendario: $e')),
-        );
-      }
-    },
+  try {
+    if (Platform.isAndroid) {
+      final DateTime inicio = actividad.fechaActividad;
+      final DateTime fin = inicio.add(const Duration(hours: 1));
+
+      final intent = AndroidIntent(
+        action: 'android.intent.action.INSERT',
+        data: 'content://com.android.calendar/events',
+        arguments: <String, dynamic>{
+          'title': actividad.titulo,
+          'description': actividad.descripcion,
+          'beginTime': inicio.millisecondsSinceEpoch,
+          'endTime': fin.millisecondsSinceEpoch,
+        },
+      );
+
+      await intent.launch();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Función disponible solo en Android')),
+      );
+    }
+  } catch (e) {
+    log('Error al abrir calendario: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('No se pudo abrir el calendario: $e')),
+    );
+  }
+},
   ),
 ),
             ],
